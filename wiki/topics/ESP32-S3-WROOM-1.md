@@ -1,6 +1,6 @@
 ---
 title: ESP32-S3-WROOM-1
-type: entity
+type: topic
 tags: [sensor-spec, 컨트롤러, 모의장치]
 created: 2026-09-07
 updated: 2026-09-07

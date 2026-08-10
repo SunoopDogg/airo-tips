@@ -1,9 +1,9 @@
 ---
 title: ESS-BMS 연동 데이터
-type: concept
+type: topic
 tags: [bms, 데이터수집, kpi]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-07
 status: developing
 sources: ["[[개발용역 계약서]]", "[[정량적 성과지표 항목표]]", "[[ESS 화재감지 알고리즘 (2023 추계학술발표논문집)]]"]
 ---

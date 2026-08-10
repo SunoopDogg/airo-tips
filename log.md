@@ -42,3 +42,9 @@ ESP32-S3-WROOM-1과 PCA9548A를 챔버 상단 외부로, SEN55 3대만 챔버 �
 ## [2026-09-07] ingest | P82B715 Datasheet · 사용자 확인 · 배선 연장 고려사항
 TI P82B715 I2C 버스 익스텐더 데이터시트를 인제스트. [[P82B715 Datasheet]], [[P82B715]] 생성.
 PCA9548A~SEN55 배선 10 cm 초과 문제의 후보 해법으로 P82B715(채널당 한 쌍, VCC 5 V)와 차폐 케이블을 고려 중이며 둘 다 미확정임을 [[모의장치]]의 "남은 것"과 Contradictions, [[ESP32-S3-WROOM-1]]·[[PCA9548A]]·[[SEN55]]의 배선 서술에 반영.
+
+## [2026-09-07] lint | 위키 2-type 이행 — topic + source
+entity·concept·note를 topic 하나로 합치고 wiki/topics/로 옮김. 15개 페이지의 type과 위치가 바뀌었고
+본문·제목·위키링크는 그대로다. CLAUDE.md의 type↔폴더 표를 3행으로 줄이고 "경계가 애매한 것들의 판정"
+절을 삭제. index.md의 Entities·Concepts·Notes 세 절을 Topics 하나로 합침. check.py의 FOLDER·SECTION,
+wiki-lint·wiki-ingest·wiki-query의 폴더 참조를 맞춤.

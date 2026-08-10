@@ -16,8 +16,8 @@ import unicodedata as ud
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 KEYS = ["title", "type", "tags", "created", "updated", "status", "sources"]
-FOLDER = {"entity": "entities", "concept": "concepts", "source": "sources", "note": "notes"}
-SECTION = {"Entities": "entity", "Concepts": "concept", "Notes": "note", "Sources": "source"}
+FOLDER = {"topic": "topics", "source": "sources"}
+SECTION = {"Topics": "topic", "Sources": "source"}
 LINK = re.compile(r"\[\[([^\]]+)\]\]")
 FORBIDDEN = [
     (r"```dataview", "Dataview 블록"),

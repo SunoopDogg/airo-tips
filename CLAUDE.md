@@ -24,10 +24,8 @@ raw/                    원문 (불변)
   records/ inquiries/ contracts/ business-plans/ contacts/
   thermal-runaway-video/
 wiki/
-  entities/             사람·조직·제품·기관·기기
-  concepts/             현상·메커니즘·지표·알고리즘·시험조건·규격
+  topics/               주제 1건당 1페이지 — 사람·조직·제품·기기·현상·지표·알고리즘·시험조건
   sources/              원문 1건당 1페이지
-  notes/                질의에서 나온 비교·분석·종합
 index.md                전 페이지 카탈로그. 질의는 여기서 시작
 log.md                  시간순 작업 이력 (append-only)
 ```
@@ -39,7 +37,7 @@ log.md                  시간순 작업 이력 (append-only)
 ```yaml
 ---
 title: SEN55
-type: entity          # entity | concept | source | note | overview
+type: topic           # topic | source | overview
 tags: [sensor-spec, gas-sensor]
 created: 2026-09-04
 updated: 2026-09-04
@@ -57,10 +55,10 @@ sources: ["[[Sensirion SEN5x Datasheet]]"]
 ### 파일명 = title, 정확히 일치
 
 폴더 안에 평평하게(flat) 둔다. 하위 폴더를 새로 만들지 않는다.
-`wiki/entities/이스트오토.md` → `title: 이스트오토` → `[[이스트오토]]`로 별칭 없이 해결된다.
+`wiki/topics/이스트오토.md` → `title: 이스트오토` → `[[이스트오토]]`로 별칭 없이 해결된다.
 
 - **한국어 고유명은 자연스러운 한국어 표기 그대로.** Title Case는 한국어에 적용하지 않는다.
-- **엔티티 하나에 정식 명칭 하나.** `이스트오토`와 `EastAuto`가 같이 존재하면 안 된다. 다른 표기는
+- **주제 하나에 정식 명칭 하나.** `이스트오토`와 `EastAuto`가 같이 존재하면 안 된다. 다른 표기는
   본문에서 "이스트오토(EastAuto)"처럼 한 번 밝히고 링크는 정식 명칭으로 통일한다.
 - **라틴 약어는 원문 표기 그대로 대문자.** `SEN55`, `LFP`, `ESS`, `KCL`, `CATL`, `BMS`, `VOC`.
 - 영문 원서·논문·데이터시트 source 페이지 제목은 원문 제목 그대로 둔다.
@@ -69,19 +67,9 @@ sources: ["[[Sensirion SEN5x Datasheet]]"]
 
 | type | 폴더 | 예 |
 |---|---|---|
-| `entity` | `wiki/entities/` | 이스트오토, 럼플리어, 강대웅, SEN55, KCL, RP-LFP-314 |
-| `concept` | `wiki/concepts/` | 열폭주, 벤팅 가스, 불꽃검출 알고리즘, 열폭주 시험 조건, 모의장치 |
+| `topic` | `wiki/topics/` | 이스트오토, 강대웅, SEN55, KCL, RP-LFP-314, 열폭주, 벤팅 가스, 불꽃검출 알고리즘, 모의장치 |
 | `source` | `wiki/sources/` | 원문 1건당 1페이지 |
-| `note` | `wiki/notes/` | 질의에서 나온 비교·분석 |
 | `overview` | 저장소 루트 | `index.md`, `log.md` — 폴더 검사 예외 |
-
-경계가 애매한 것들의 판정:
-
-- **시험기관·인증기관**(KCL 등)은 조직이므로 `entities/`. 그 기관이 운영하는 **시험규격·인증절차**는
-  `concepts/`.
-- **제품 모델명**(RP-LFP-314, RPM-5120V314AS1)은 `entities/`. 그 제품이 구현하는 **방식**(액랭식
-  랙, LFP 화학)은 `concepts/`.
-- **사람**은 `entities/`. 회사 소속은 본문에서 `[[이스트오토]]`로 링크한다.
 
 ### 본문
 
@@ -148,8 +136,7 @@ sources: ["[[Sensirion SEN5x Datasheet]]"]
 
 ## index.md
 
-전 페이지 카탈로그이자 질의의 출발점. 섹션 순서는 `### Overview` → `### Entities` →
-`### Concepts` → `### Notes` → `### Sources`.
+전 페이지 카탈로그이자 질의의 출발점. 섹션 순서는 `### Overview` → `### Topics` → `### Sources`.
 
 한 줄 형식은 고정 — 하이픈, 위키링크, 공백 em dash 공백, 한 문장, 마침표:
 
@@ -176,7 +163,7 @@ SEN55 선정 근거 노트를 인제스트. [[SEN55]], [[벤팅 가스]] 생성.
 
 - 연산자는 `ingest` | `query` | `lint` 셋뿐. `|` 뒤는 대상 이름.
 - 날짜는 `date +%F` 결과를 쓴다. 기억으로 쓰지 않는다.
-- 질의는 **노트로 파일링한 경우에만** 기록한다. 단순 조회까지 남기면 이력이 노이즈가 된다.
+- 질의는 **페이지에 파일링한 경우에만** 기록한다. 단순 조회까지 남기면 이력이 노이즈가 된다.
 
 ## 작업할 때
 
@@ -184,7 +171,7 @@ SEN55 선정 근거 노트를 인제스트. [[SEN55]], [[벤팅 가스]] 생성.
 - **편집한 모든 페이지의 `updated:`를 올린다.** `index.md`와 `log.md` 자신도 포함. 이걸 빠뜨리면
   다음 lint의 stale 판정이 통째로 못 믿을 것이 된다.
 - `status:`는 내용이 차오르는 대로 `stub` → `developing` → `stable`로 옮긴다.
-- **파일명에 공백과 한글이 들어간다.** 셸에서 경로는 항상 따옴표로 감싼다: `cat "wiki/entities/SEN55.md"`.
+- **파일명에 공백과 한글이 들어간다.** 셸에서 경로는 항상 따옴표로 감싼다: `cat "wiki/topics/SEN55.md"`.
 - **한글 파일명에 `sort`/`uniq`/`comm`을 쓰지 않는다.** macOS 기본 도구의 로케일 비교가 깨진다.
   비교가 필요하면 NFC로 정규화한 뒤 파이썬으로 처리한다 (APFS는 파일명을 NFD로 저장하고 페이지 본문은
   NFC다).

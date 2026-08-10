@@ -1,6 +1,6 @@
 ---
 title: VOC Index
-type: concept
+type: topic
 tags: [지표, 가스센서, 오프가스, 알고리즘]
 created: 2026-09-07
 updated: 2026-09-07
