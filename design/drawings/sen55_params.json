@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "drawing_title": "SEN55 환경 센서 모듈 상세도",
+    "drawing_number": "J3-SN-001",
+    "revision": "A",
+    "date": "2026-09-02",
+    "scale": "NTS (치수값 mm)",
+    "unit": "mm"
+  },
+  "module": {
+    "part_number": {"value": "SEN55-SDN-T", "unit": "-", "status": "fixed", "source": "[[SEN55]]; Sensirion SEN5x Datasheet Table 1"},
+    "article_number": {"value": "3.000.593", "unit": "-", "status": "fixed", "source": "[[SEN55]]; Sensirion SEN5x Datasheet Table 1"},
+    "length": {"value": 52.3, "unit": "mm", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "length_tolerance": {"value": "±0.4", "unit": "mm", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "width": {"value": 43.3, "unit": "mm", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "width_tolerance": {"value": "+0.2/-0.6", "unit": "mm", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "height": {"value": 22.3, "unit": "mm", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "height_tolerance": {"value": "±0.4", "unit": "mm", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "side_width": {"value": 13.2, "unit": "mm", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "side_width_tolerance": {"value": "±0.4", "unit": "mm", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "fan_opening_diameter": {"value": 19, "unit": "mm", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름; 참조 치수"},
+    "weight": {"value": 36.4, "unit": "g", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "weight_tolerance": {"value": "±10 %", "unit": "-", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "connector": {"value": "ACES 51451-0060N-001", "unit": "-", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "connector_location": {"value": "공기 배출구 인접 측면", "unit": "zone", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "label_width": {"value": 18, "unit": "mm", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "label_height": {"value": 12, "unit": "mm", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "label_location": {"value": "배출구 반대쪽 면 상단", "unit": "zone", "status": "fixed", "source": "[[SEN55]]; 외형과 공기 흐름"},
+    "air_inlet_location": {"value": null, "unit": "zone", "status": "unknown", "source": "[[SEN55]]; 데이터시트가 공기 흡입구 위치를 단정하지 않음"}
+  }
+}

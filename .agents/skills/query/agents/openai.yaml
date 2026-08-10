@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wiki Query"
+  short_description: "위키를 근거로 질문에 답하고 분석을 축적합니다"
+  default_prompt: "Use $query to answer my question from this project wiki with citations."

@@ -1,0 +1,72 @@
+{
+  "meta": {
+    "drawing_title": "지표 3 ESS 운용환경 모의 챔버 3면도",
+    "drawing_number": "J3-CH-001",
+    "revision": "I",
+    "date": "2026-09-03",
+    "scale": "NTS (치수값 mm)",
+    "unit": "mm"
+  },
+  "pack": {
+    "width": {"value": 450, "unit": "mm", "status": "fixed", "source": "[[RPM-5120V314AS1]]; 설계서 5.1"},
+    "depth": {"value": 790, "unit": "mm", "status": "fixed", "source": "[[RPM-5120V314AS1]]; 설계서 5.1"},
+    "height": {"value": 250, "unit": "mm", "status": "fixed", "source": "[[RPM-5120V314AS1]]; 설계서 5.1"},
+    "count": {"value": 1, "unit": "ea", "status": "fixed", "source": "2026-09-01 사람 결정; 설계서 5.1"}
+  },
+  "clearance": {
+    "side_left": {"value": 150, "unit": "mm", "status": "fixed", "source": "[[지표 3 모의장치 설계]] L1 산출값; 기류 회전 공간; 2026-09-02 사람 결정"},
+    "side_right": {"value": 150, "unit": "mm", "status": "fixed", "source": "[[지표 3 모의장치 설계]] L1 산출값; 기류 회전 공간; 2026-09-02 사람 결정"},
+    "front": {"value": 150, "unit": "mm", "status": "fixed", "source": "[[지표 3 모의장치 설계]] L1 산출값; 전후 기류 공간; 2026-09-02 사람 결정"},
+    "rear": {"value": 150, "unit": "mm", "status": "fixed", "source": "[[지표 3 모의장치 설계]] L1 산출값; 전후 기류 공간; 2026-09-02 사람 결정"},
+    "top": {"value": 400, "unit": "mm", "status": "fixed", "source": "[[지표 3 모의장치 설계]] L1 산출값; 상부 감지기 설치 공간; 2026-09-02 사람 결정"},
+    "bottom": {"value": 100, "unit": "mm", "status": "fixed", "source": "[[지표 3 모의장치 설계]] L1 산출값; 바닥 프레임 높이; 2026-09-02 사람 결정; 2026-09-03 집수 근거 제거"}
+  },
+  "enclosure": {
+    "wall_thickness": {"value": 3.0, "unit": "mm", "status": "fixed", "source": "설계서 6.1; 2026-09-02 사람 결정"},
+    "material": {"value": "SUS304", "unit": "-", "status": "fixed", "source": "설계서 6.1; 2026-09-02 사람 결정; DEC 내약품성·열풍 내열성"},
+    "sealing_grade": {"value": "IP55", "unit": "-", "status": "fixed", "source": "설계서 6.1; 2026-09-02 사람 결정"},
+    "door_opening_width": {"value": 600, "unit": "mm", "status": "fixed", "source": "설계서 6.2; 2026-09-02 사람 결정; 팩 폭 450 + 반입 지그 여유 150"},
+    "door_opening_height": {"value": 500, "unit": "mm", "status": "fixed", "source": "설계서 6.2; 2026-09-02 사람 결정; 팩 높이 250 + 받침 프레임 100 + 여유 150"},
+    "door_handle_type": {"value": "레버형 다점 래치 핸들", "unit": "-", "status": "fixed", "source": "설계서 6.2 다점 래치로 둘레 압착을 균일하게 한다; 2026-09-02 사람 결정"},
+    "door_handle_length": {"value": 150, "unit": "mm", "status": "fixed", "source": "2026-09-02 사람 결정"},
+    "door_handle_offset": {"value": 40, "unit": "mm", "status": "fixed", "source": "2026-09-02 사람 결정; 도어 개구의 손잡이측 세로 가장자리에서 핸들 중심선까지의 안쪽 거리"},
+    "observation_window_width": {"value": 400, "unit": "mm", "status": "fixed", "source": "설계서 6.2; 2026-09-02 사람 결정"},
+    "observation_window_height": {"value": 300, "unit": "mm", "status": "fixed", "source": "설계서 6.2; 2026-09-02 사람 결정"}
+  },
+  "floor_frame": {
+    "height": {"value": 100, "unit": "mm", "status": "fixed", "source": "2026-09-02 사람 결정; 설계서 6.1 받침 프레임; 2026-09-03 집수 근거 제거"}
+  },
+  "electrical_envelope": {
+    "width": {"value": 300, "unit": "mm", "status": "proposed", "source": "2026-09-04 에이전트 제안, 사람 미승인; 챔버 내부 IP55 밀폐·DEC 약품 분무·목표 60 ℃ 환경과 전장 기기 설치의 적합성 미확인"},
+    "depth": {"value": 150, "unit": "mm", "status": "proposed", "source": "2026-09-04 에이전트 제안, 사람 미승인; clearance.rear 150 mm와 같은 값으로 후벽에 밀착시켜 평면도에서 팩 위로 돌출하지 않게 함"},
+    "height": {"value": 120, "unit": "mm", "status": "proposed", "source": "2026-09-04 에이전트 제안, 사람 미승인; 챔버 내부 IP55 밀폐·DEC 약품 분무·목표 60 ℃ 환경과 전장 기기 설치의 적합성 미확인"},
+    "left_offset": {"value": 0, "unit": "mm", "status": "proposed", "source": "2026-09-04 에이전트 제안, 사람 미승인; 좌측 내벽 밀착. 우측 모서리는 천장 밀착 시 SEN55 상부3 마커와 정면도에서 겹쳐 좌측으로 옮김"},
+    "front_offset": {"value": 940, "unit": "mm", "status": "proposed", "source": "2026-09-04 에이전트 제안, 사람 미승인; 후벽 밀착(940+150=1,090). 공용 주입 포트가 있는 후방 쪽 모서리"},
+    "bottom_offset": {"value": 630, "unit": "mm", "status": "proposed", "source": "2026-09-04 사람 지시 「천장에 붙인다」; 630+120=750으로 내부 상판 밀착. 확정 clearance.top 400 mm(상부 감지기 설치 공간)와 clearance.rear 150 mm(전후 기류 공간)를 일부 점유하는 충돌이 있으며 사람 검토 필요"},
+    "zone": {"value": "rear-left-ceiling-corner", "unit": "zone", "status": "proposed", "source": "2026-09-04 사람 지시 「공용주입 포트쪽 구석으로 이동」+「천장에 붙인다」. 후벽·좌측벽·상판 세 면에 밀착한 모서리이며 내부·외형 확정 치수는 확대하지 않음"}
+  },
+  "ports": {
+    "common_inlet": {
+      "value": {
+        "zone": "rear-mid-lower",
+        "branches": ["humidifier", "vacuum_dust", "blower", "dec_spray", "hot_air"],
+        "branch_requirements": ["isolation_valve", "backflow_preventer"],
+        "dec_nozzle": "inside_port_end",
+        "exclusive_interlock": ["dec_spray", "hot_air"]
+      },
+      "unit": "configuration",
+      "status": "fixed",
+      "source": "[[지표 3 모의장치 설계]] L1 포트; 흡기 1구에 5개 자극 장비를 외부 매니폴드로 연결; 설계서 6.3·7·12.2; 2026-09-02 사람 결정"
+    },
+    "exhaust": {"value": "front-upper-opposite", "unit": "zone", "status": "fixed", "source": "설계서 6.3; 주입 반대편 상부의 대각 관류; 2026-09-02 사람 결정; 2026-09-03 명칭에서 퍼지 제거"},
+    "cable_entry": {"value": "side-lower-separated", "unit": "zone", "status": "fixed", "source": "설계서 6.3·6.4; 자극 호스와 분리; 2026-09-02 사람 결정"},
+    "common_inlet_diameter": {"value": null, "unit": "mm", "status": "dependent", "depends_on": "장비 실제 토출구·요구 유량·압력손실·누설 시험 결과 (설계서 6.3)", "source": "설계서 6.3·6.4 가 수치 지정을 거부함; 2026-09-02 환원"},
+    "exhaust_diameter": {"value": null, "unit": "mm", "status": "dependent", "depends_on": "장비 실제 토출구·요구 유량·압력손실·누설 시험 결과 (설계서 6.3)", "source": "설계서 6.3·6.4 가 수치 지정을 거부함; 2026-09-02 환원; 2026-09-03 명칭에서 퍼지 제거"},
+    "cable_entry_diameter": {"value": null, "unit": "mm", "status": "dependent", "depends_on": "선정된 차폐 케이블의 외경. 관통판에 케이블 외경별 글랜드를 두고 예비구는 막는다 (설계서 6.4·BOM)", "source": "설계서 6.3·6.4 가 수치 지정을 거부함; 2026-09-02 환원"}
+  },
+  "sensor_points": {
+    "upper_left": {"value": "upper-left", "unit": "zone", "status": "fixed", "source": "[[SEN55]]; 2026-09-02 사람 결정"},
+    "upper_center": {"value": "upper-center", "unit": "zone", "status": "fixed", "source": "[[SEN55]]; 2026-09-02 사람 결정"},
+    "upper_right": {"value": "upper-right", "unit": "zone", "status": "fixed", "source": "[[SEN55]]; 2026-09-02 사람 결정"}
+  }
+}

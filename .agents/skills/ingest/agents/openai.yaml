@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wiki Ingest"
+  short_description: "새 원문을 프로젝트 위키 지식으로 안전하게 통합합니다"
+  default_prompt: "Use $ingest to integrate a new raw source into this project wiki."

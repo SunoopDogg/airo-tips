@@ -1,0 +1,9 @@
+.venv/
+.DS_Store
+__pycache__/
+
+raw/thermal-runaway-video/*.mp4
+raw/thermal-runaway-video/*.mov
+raw/thermal-runaway-video/*.avi
+
+.obsidian/

@@ -1,0 +1,29 @@
+services:
+  airo-tips:
+    build:
+      context: .
+    image: trixie-slim:uv-nvm
+    container_name: airo-tips
+    environment:
+      - DISPLAY=${DISPLAY:-host.docker.internal:0}
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - .:/root/airo-tips
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    network_mode: host
+    ipc: host
+    tty: true
+
+  airo-tips-gpu:
+    extends:
+      service: airo-tips
+    container_name: airo-tips-gpu
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    profiles:
+      - gpu

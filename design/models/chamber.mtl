@@ -1,0 +1,75 @@
+# 지표 3 ESS 모의 챔버 재질/색 정의; 물리 재질 사양이 아님
+newmtl outer_shell
+Kd 0.680 0.700 0.720
+d 0.380
+illum 2
+
+newmtl effective_volume
+Kd 0.500 0.750 0.950
+d 0.220
+illum 2
+
+newmtl floor_frame
+Kd 0.300 0.320 0.340
+d 1.000
+illum 2
+
+newmtl pack
+Kd 0.080 0.300 0.580
+d 1.000
+illum 2
+
+newmtl door
+Kd 0.950 0.650 0.100
+d 0.650
+illum 2
+
+newmtl window
+Kd 0.200 0.850 0.950
+d 0.550
+illum 2
+
+newmtl handle
+Kd 0.850 0.450 0.050
+d 1.000
+illum 2
+
+newmtl inlet_dependent
+Kd 0.850 0.150 0.150
+d 1.000
+illum 2
+
+newmtl exhaust_dependent
+Kd 0.550 0.200 0.750
+d 1.000
+illum 2
+
+newmtl cable_dependent
+Kd 0.200 0.200 0.200
+d 1.000
+illum 2
+
+newmtl sensor_concept
+Kd 0.050 0.650 0.350
+d 1.000
+illum 2
+
+newmtl electrical_envelope
+Kd 0.490 0.230 0.930
+d 0.450
+illum 2
+
+newmtl axis_x
+Kd 0.900 0.100 0.100
+d 1.000
+illum 2
+
+newmtl axis_y
+Kd 0.100 0.700 0.100
+d 1.000
+illum 2
+
+newmtl axis_z
+Kd 0.100 0.250 0.900
+d 1.000
+illum 2

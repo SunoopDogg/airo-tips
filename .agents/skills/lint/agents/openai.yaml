@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wiki Lint"
+  short_description: "위키 연결성·일관성·신선도를 점검하고 정비합니다"
+  default_prompt: "Use $lint to health-check and maintain this project wiki."
