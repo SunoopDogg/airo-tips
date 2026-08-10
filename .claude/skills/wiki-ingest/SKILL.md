@@ -72,7 +72,8 @@ description: raw/에 새 원문이 들어왔거나, 사용자가 프로젝트 �
 - `index.md`: 새 페이지 한 줄(자리표시자는 교체), 틀려진 기존 요약 수정, `updated:`.
 - `log.md`: 맨 아래에 `## [날짜] ingest | 대상`, 본문 2–5줄에 만든·고친 페이지 전부 `[[링크]]`.
 - 편집한 모든 페이지 `updated:`, 내용이 찼으면 `status:` 승격.
-- 마지막으로 `python3 .claude/skills/wiki-lint/check.py`. 오류 0이어야 끝이다. 경고는 각각 읽고 판단.
+- `python3 .claude/skills/wiki-lint/check.py`. 오류 0이어야 넘어간다. 경고는 각각 읽고 판단.
+- 마지막으로 커밋한다. 이 인제스트가 바꾼 것 전부를 한 커밋에. 규약은 `CLAUDE.md`의 "커밋".
 
 ## 배치 모드
 

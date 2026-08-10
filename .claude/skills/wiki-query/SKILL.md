@@ -47,7 +47,7 @@ description: 이 프로젝트 위키의 내용을 묻는 질문에 사용. "X에
 1. 해당 topic 페이지에 절을 쓴다. 그 페이지의 `sources:`에 답이 기댄 source 페이지를 **한 홉까지** 더한다 (다른 topic 페이지를 썼고 그 페이지가 `[[Sensirion SEN5x Datasheet]]`를 인용하면 그것도 넣는다). 본문 인용 규칙은 다른 페이지와 같다. 사용자 확인 근거는 `(사용자 확인 날짜)`로 쓰고 `sources:`에는 안 넣는다. `updated:`.
 2. `log.md` 맨 아래에 `## [날짜] query | 질문`. 파일링한 질의만 기록한다.
 3. 인바운드 링크. 새 topic 페이지를 만들었다면 관련 topic 페이지 본문에 `[[제목]]`을 문장으로 넣고 `updated:`. 걸 자리가 없으면 만들지 말고 그렇다고 말한다. 기존 페이지에 절을 더한 경우엔 이미 링크가 있다.
-4. `python3 .claude/skills/wiki-lint/check.py`. 오류 0.
+4. `python3 .claude/skills/wiki-lint/check.py`. 오류 0. 그리고 커밋 (`CLAUDE.md`의 "커밋").
 
 로그 항목 예:
 
