@@ -10,8 +10,7 @@ sources: []
 
 # log
 
-작업 이력. 새 항목은 맨 아래에 덧붙인다. 과거 항목은 고치지 않는다.
-형식: `## [YYYY-MM-DD] ingest|query|lint | 대상`
+작업 이력. 새 항목은 맨 아래에 덧붙인다. 과거 항목은 고치지 않는다. 형식: `## [YYYY-MM-DD] ingest|query|lint | 대상`
 
 ## [2026-09-04] ingest | 개발용역 계약서 · 정량적 성과지표 항목표
 계약서와 정량적항목 xlsx를 함께 읽어 [[개발용역 계약서]], [[정량적 성과지표 항목표]] source 페이지를 만들고 [[이스트오토]], [[에어로랩]], [[정량적 성과지표]], [[불꽃검출 알고리즘]], [[배터리 화재감지 5단계]], [[ESS-BMS 연동 데이터]]를 생성했다. 계약서 원문이 미서명 초안(계약기간·지급일·갑 서명란 공란)임을 기록하고, 지표 비중 합계가 90%에 그치는 문제를 [[정량적 성과지표]]에 남겼다. 다섯 항목이 알고리즘 출력 단계인지 시험 조건인지 두 원문이 어긋나는 점을 [[배터리 화재감지 5단계]] Contradictions에 기록.
@@ -40,19 +39,13 @@ PCA9548A 데이터시트 SCPS143G를 인제스트하고 [[PCA9548A Datasheet]], 
 ESP32-S3-WROOM-1과 PCA9548A를 챔버 상단 외부로, SEN55 3대만 챔버 내부에 두는 것으로 배치를 바꿈. [[ESP32-S3-WROOM-1]]의 동작온도·배선 길이 서술과 [[PCA9548A]]의 배치 서술을 갱신. [[모의장치]]의 "정해진 것" 배치 항목을 다시 쓰고, 컨트롤러 결로 관련 Contradictions 항목을 PCA9548A~SEN55 배선이 챔버 벽을 가로지르며 10 cm 권고와 부딪히는 항목으로 교체, "남은 것"에 배선 길이·차폐 방식을 추가.
 
 ## [2026-09-07] ingest | P82B715 Datasheet · 사용자 확인 · 배선 연장 고려사항
-TI P82B715 I2C 버스 익스텐더 데이터시트를 인제스트. [[P82B715 Datasheet]], [[P82B715]] 생성.
-PCA9548A~SEN55 배선 10 cm 초과 문제의 후보 해법으로 P82B715(채널당 한 쌍, VCC 5 V)와 차폐 케이블을 고려 중이며 둘 다 미확정임을 [[모의장치]]의 "남은 것"과 Contradictions, [[ESP32-S3-WROOM-1]]·[[PCA9548A]]·[[SEN55]]의 배선 서술에 반영.
+TI P82B715 I2C 버스 익스텐더 데이터시트를 인제스트. [[P82B715 Datasheet]], [[P82B715]] 생성. PCA9548A~SEN55 배선 10 cm 초과 문제의 후보 해법으로 P82B715(채널당 한 쌍, VCC 5 V)와 차폐 케이블을 고려 중이며 둘 다 미확정임을 [[모의장치]]의 "남은 것"과 Contradictions, [[ESP32-S3-WROOM-1]]·[[PCA9548A]]·[[SEN55]]의 배선 서술에 반영.
 
 ## [2026-09-07] lint | 위키 2-type 이행 — topic + source
-entity·concept·note를 topic 하나로 합치고 wiki/topics/로 옮김. 15개 페이지의 type과 위치가 바뀌었고
-본문·제목·위키링크는 그대로다. CLAUDE.md의 type↔폴더 표를 3행으로 줄이고 "경계가 애매한 것들의 판정"
-절을 삭제. index.md의 Entities·Concepts·Notes 세 절을 Topics 하나로 합침. check.py의 FOLDER·SECTION,
-wiki-lint·wiki-ingest·wiki-query의 폴더 참조를 맞춤.
+entity·concept·note를 topic 하나로 합치고 wiki/topics/로 옮김. 15개 페이지의 type과 위치가 바뀌었고 본문·제목·위키링크는 그대로다. CLAUDE.md의 type↔폴더 표를 3행으로 줄이고 "경계가 애매한 것들의 판정" 절을 삭제. index.md의 Entities·Concepts·Notes 세 절을 Topics 하나로 합침. check.py의 FOLDER·SECTION, wiki-lint·wiki-ingest·wiki-query의 폴더 참조를 맞춤.
 
 ## [2026-09-07] lint | source 페이지 정리 — 원문 밖 서술 제거
-source 페이지 5건에서 원문 밖의 서술을 걷어냈다. [[ESS 화재감지 알고리즘 (2023 추계학술발표논문집)]]의
-"이 위키에서의 위치"·"이 위키 관점에서의 한계"·인용 지침, [[정량적 성과지표 항목표]]와 [[개발용역 계약서]]의
-교차 판정과 `(사용자 확인)`, [[Sensirion SEN5x Datasheet]]·[[ESP32-S3-WROOM-1 & WROOM-1U Datasheet]]의
-프로젝트 서술이 대상이다. 삭제분은 전부 topic 페이지에 이미 인용과 함께 있고, 유일한 예외였던 표6
-마지막 구간의 인위적 열자극 단서는 [[열폭주]]로 옮겼다. CLAUDE.md에 "source 페이지는 그 원문만
-서술한다" 절을 추가.
+source 페이지 5건에서 원문 밖의 서술을 걷어냈다. [[ESS 화재감지 알고리즘 (2023 추계학술발표논문집)]]의 "이 위키에서의 위치"·"이 위키 관점에서의 한계"·인용 지침, [[정량적 성과지표 항목표]]와 [[개발용역 계약서]]의 교차 판정과 `(사용자 확인)`, [[Sensirion SEN5x Datasheet]]·[[ESP32-S3-WROOM-1 & WROOM-1U Datasheet]]의 프로젝트 서술이 대상이다. 삭제분은 전부 topic 페이지에 이미 인용과 함께 있고, 유일한 예외였던 표6 마지막 구간의 인위적 열자극 단서는 [[열폭주]]로 옮겼다. CLAUDE.md에 "source 페이지는 그 원문만 서술한다" 절을 추가.
+
+## [2026-09-07] lint | 소프트랩 적용 — 저장소 전체 .md
+CLAUDE.md와 wiki-ingest·wiki-lint·wiki-query 스킬 문서의 하드랩을 풀어 한 문단을 한 줄로 만들었다. 위키 페이지와 index.md는 이미 규칙을 지키고 있었고, 직전 로그 항목만 하드랩이라 함께 폈다. "한 문단은 한 줄" 규칙의 적용 범위를 위키 본문에서 저장소의 모든 .md로 넓혀 CLAUDE.md에 명시.
