@@ -2,24 +2,24 @@
   "meta": {
     "drawing_title": "지표 3 ESS 운용환경 모의 챔버 3면도",
     "drawing_number": "J3-CH-001",
-    "revision": "I",
-    "date": "2026-09-03",
+    "revision": "J",
+    "date": "2026-09-07",
     "scale": "NTS (치수값 mm)",
     "unit": "mm"
   },
   "pack": {
-    "width": {"value": 450, "unit": "mm", "status": "fixed", "source": "[[RPM-5120V314AS1]]; 설계서 5.1"},
-    "depth": {"value": 790, "unit": "mm", "status": "fixed", "source": "[[RPM-5120V314AS1]]; 설계서 5.1"},
-    "height": {"value": 250, "unit": "mm", "status": "fixed", "source": "[[RPM-5120V314AS1]]; 설계서 5.1"},
+    "width": {"value": 450, "unit": "mm", "status": "fixed", "source": "2026-09-01 사람 결정; 설계서 5.1"},
+    "depth": {"value": 790, "unit": "mm", "status": "fixed", "source": "2026-09-01 사람 결정; 설계서 5.1"},
+    "height": {"value": 250, "unit": "mm", "status": "fixed", "source": "2026-09-01 사람 결정; 설계서 5.1"},
     "count": {"value": 1, "unit": "ea", "status": "fixed", "source": "2026-09-01 사람 결정; 설계서 5.1"}
   },
   "clearance": {
-    "side_left": {"value": 150, "unit": "mm", "status": "fixed", "source": "[[지표 3 모의장치 설계]] L1 산출값; 기류 회전 공간; 2026-09-02 사람 결정"},
-    "side_right": {"value": 150, "unit": "mm", "status": "fixed", "source": "[[지표 3 모의장치 설계]] L1 산출값; 기류 회전 공간; 2026-09-02 사람 결정"},
-    "front": {"value": 150, "unit": "mm", "status": "fixed", "source": "[[지표 3 모의장치 설계]] L1 산출값; 전후 기류 공간; 2026-09-02 사람 결정"},
-    "rear": {"value": 150, "unit": "mm", "status": "fixed", "source": "[[지표 3 모의장치 설계]] L1 산출값; 전후 기류 공간; 2026-09-02 사람 결정"},
-    "top": {"value": 400, "unit": "mm", "status": "fixed", "source": "[[지표 3 모의장치 설계]] L1 산출값; 상부 감지기 설치 공간; 2026-09-02 사람 결정"},
-    "bottom": {"value": 100, "unit": "mm", "status": "fixed", "source": "[[지표 3 모의장치 설계]] L1 산출값; 바닥 프레임 높이; 2026-09-02 사람 결정; 2026-09-03 집수 근거 제거"}
+    "side_left": {"value": 150, "unit": "mm", "status": "fixed", "source": "기류 회전 공간; 2026-09-02 사람 결정"},
+    "side_right": {"value": 150, "unit": "mm", "status": "fixed", "source": "기류 회전 공간; 2026-09-02 사람 결정"},
+    "front": {"value": 150, "unit": "mm", "status": "fixed", "source": "전후 기류 공간; 2026-09-02 사람 결정"},
+    "rear": {"value": 150, "unit": "mm", "status": "fixed", "source": "전후 기류 공간; 2026-09-02 사람 결정"},
+    "top": {"value": 400, "unit": "mm", "status": "fixed", "source": "상부 감지기 설치 공간; 2026-09-02 사람 결정"},
+    "bottom": {"value": 100, "unit": "mm", "status": "fixed", "source": "바닥 프레임 높이; 2026-09-02 사람 결정; 2026-09-03 집수 근거 제거"}
   },
   "enclosure": {
     "wall_thickness": {"value": 3.0, "unit": "mm", "status": "fixed", "source": "설계서 6.1; 2026-09-02 사람 결정"},
@@ -37,13 +37,19 @@
     "height": {"value": 100, "unit": "mm", "status": "fixed", "source": "2026-09-02 사람 결정; 설계서 6.1 받침 프레임; 2026-09-03 집수 근거 제거"}
   },
   "electrical_envelope": {
-    "width": {"value": 300, "unit": "mm", "status": "proposed", "source": "2026-09-04 에이전트 제안, 사람 미승인; 챔버 내부 IP55 밀폐·DEC 약품 분무·목표 60 ℃ 환경과 전장 기기 설치의 적합성 미확인"},
-    "depth": {"value": 150, "unit": "mm", "status": "proposed", "source": "2026-09-04 에이전트 제안, 사람 미승인; clearance.rear 150 mm와 같은 값으로 후벽에 밀착시켜 평면도에서 팩 위로 돌출하지 않게 함"},
-    "height": {"value": 120, "unit": "mm", "status": "proposed", "source": "2026-09-04 에이전트 제안, 사람 미승인; 챔버 내부 IP55 밀폐·DEC 약품 분무·목표 60 ℃ 환경과 전장 기기 설치의 적합성 미확인"},
-    "left_offset": {"value": 0, "unit": "mm", "status": "proposed", "source": "2026-09-04 에이전트 제안, 사람 미승인; 좌측 내벽 밀착. 우측 모서리는 천장 밀착 시 SEN55 상부3 마커와 정면도에서 겹쳐 좌측으로 옮김"},
-    "front_offset": {"value": 940, "unit": "mm", "status": "proposed", "source": "2026-09-04 에이전트 제안, 사람 미승인; 후벽 밀착(940+150=1,090). 공용 주입 포트가 있는 후방 쪽 모서리"},
-    "bottom_offset": {"value": 630, "unit": "mm", "status": "proposed", "source": "2026-09-04 사람 지시 「천장에 붙인다」; 630+120=750으로 내부 상판 밀착. 확정 clearance.top 400 mm(상부 감지기 설치 공간)와 clearance.rear 150 mm(전후 기류 공간)를 일부 점유하는 충돌이 있으며 사람 검토 필요"},
-    "zone": {"value": "rear-left-ceiling-corner", "unit": "zone", "status": "proposed", "source": "2026-09-04 사람 지시 「공용주입 포트쪽 구석으로 이동」+「천장에 붙인다」. 후벽·좌측벽·상판 세 면에 밀착한 모서리이며 내부·외형 확정 치수는 확대하지 않음"}
+    "zone": {
+      "value": "top-exterior",
+      "unit": "zone",
+      "status": "fixed",
+      "source": "챔버 내부에는 SEN55만 두고 ESP32-S3-WROOM-1·PCA9548A 등 전장은 챔버 상단 외부에 둔다 (사용자 확인 2026-09-07); 2026-09-04 챔버 내부 제안(300x150x120 mm, 사람 미승인)은 이 결정으로 폐기됨"
+    },
+    "enclosure_dimensions": {
+      "value": null,
+      "unit": "mm",
+      "status": "dependent",
+      "depends_on": "선정된 전장함 규격과 챔버 상면 설치 방식. 챔버 외부이므로 내부 유효 치수에 영향을 주지 않는다",
+      "source": "위키에 전장함 외형 치수가 없음 (사용자 확인 2026-09-07)"
+    }
   },
   "ports": {
     "common_inlet": {
@@ -56,7 +62,7 @@
       },
       "unit": "configuration",
       "status": "fixed",
-      "source": "[[지표 3 모의장치 설계]] L1 포트; 흡기 1구에 5개 자극 장비를 외부 매니폴드로 연결; 설계서 6.3·7·12.2; 2026-09-02 사람 결정"
+      "source": "[[모의장치]] L1 포트; 흡기 1구에 5개 자극 장비를 외부 매니폴드로 연결; 설계서 6.3·7·12.2; 2026-09-02 사람 결정"
     },
     "exhaust": {"value": "front-upper-opposite", "unit": "zone", "status": "fixed", "source": "설계서 6.3; 주입 반대편 상부의 대각 관류; 2026-09-02 사람 결정; 2026-09-03 명칭에서 퍼지 제거"},
     "cable_entry": {"value": "side-lower-separated", "unit": "zone", "status": "fixed", "source": "설계서 6.3·6.4; 자극 호스와 분리; 2026-09-02 사람 결정"},
