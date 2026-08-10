@@ -1,218 +1,140 @@
 ---
 name: wiki-lint
-description: Health check and repair pass over this LLM wiki — finds broken [[links]], orphan pages nothing links to, index.md drift, malformed or stale frontmatter, contradictions between pages, claims superseded by newer sources, frequently-mentioned things that have no page yet, thin stubs, and research gaps worth a web search or a new source; then reports everything grouped by severity and fixes what the human approves. Use this whenever the human says "lint the wiki", "health check", "audit the knowledge base", "is the wiki consistent", "check for contradictions", "any broken links", "any orphan pages", "what's missing", "what should I add", "suggest gaps to fill", "what should I read next", "clean up the wiki", "tidy the index", or otherwise asks about the *state* of the wiki rather than its contents — and lean toward using it when a request is ambiguous but sounds like maintenance, since a wasted lint costs little and a skipped one lets rot compound. Do NOT use it to file a new document that landed in raw/ (that is wiki-ingest) or to answer a substantive question about what the wiki says (that is wiki-query); a lint reads pages to judge their health, not to answer their subject matter.
+description: 위키의 내용이 아니라 상태를 물을 때 사용. "린트", "점검해", "위키 건강 확인", "모순 있어?", "깨진 링크", "고아 페이지", "인덱스 정리", "빠진 거 뭐야", "뭘 더 넣어야 해", "다음에 뭘 읽을까", "정리 좀 해". 유지보수처럼 들리면 쓴다. 헛된 린트는 싸고 건너뛴 린트는 썩는다. 새 원문 반영(wiki-ingest)이나 내용 질문(wiki-query)에는 쓰지 않는다.
 ---
 
-# Wiki Lint
+# 린트
 
-A lint pass answers "is this wiki still trustworthy?" Rot in a wiki is quiet: a link that
-stopped resolving, an index line pointing at a deleted page, two pages that now disagree.
-Nothing errors, answers just get slightly worse forever. Your job is to surface that,
-then repair what the human signs off on.
+## 개요
 
-Read `CLAUDE.md` first — it is the schema, and this skill assumes its conventions
-(filename = title, frontmatter key order, `[[wikilinks]]`, no Dataview in this vault).
-`raw/` is immutable — a lint reads source documents to check the wiki against them, never edits,
-renames, or tidies them.
+린트는 "이 위키를 아직 믿어도 되는가"에 답한다. 위키의 부패는 조용하다. 해석 안 되는 링크, 지워진
+페이지를 가리키는 인덱스 줄, 서로 어긋나기 시작한 두 페이지, 근거 없이 들어온 문장. 아무것도 오류를
+내지 않고 답만 조금씩 나빠진다. 찾아서 **보고하고**, 사용자가 승인한 것만 고친다.
 
-## 0. Scope the pass first
+결과물의 모양은 `CLAUDE.md`가 정한다. 시작할 때 `date +%F` 한 번, `CLAUDE.md`를 안 읽었으면 읽는다.
+`raw/`는 불변이다. 린트는 원문을 읽어 위키를 대조할 뿐 원문을 고치거나 정리하지 않는다.
 
-A full read of a large wiki is expensive and mostly re-reads pages that haven't changed.
-Ask which scope, and recommend one:
+## 0. 범위
 
-- **Recent** (default) — pages changed since the last `## [YYYY-MM-DD] lint` entry in `log.md`.
-  Recent changes are where the rot is. Find the boundary with
-  `grep '^## \[.*\] lint' log.md | tail -1`, then `find wiki -name '*.md' -newermt YYYY-MM-DD`.
-  If that date is today, or predates any content at all, this degenerates to "nothing changed" —
-  fall back to a full pass instead of reporting an empty result.
-- **Folder / topic** — e.g. only `wiki/entities/`, or every page tagged with one theme.
-- **Full** — everything. Right after a big ingest, or when nobody has linted in a while.
+- **Recent**(기본): 마지막 lint 이후 바뀐 페이지. 경계는 `grep '^## \[.*\] lint' log.md | tail -1`,
+  대상은 `find wiki -name '*.md' -newermt YYYY-MM-DD`. lint 이력이 없거나 그 날짜가 오늘이면 Full.
+- **폴더/주제**: `wiki/entities/`만, 또는 한 태그.
+- **Full**: 전부. 큰 인제스트 직후나 오래 린트하지 않았을 때.
 
-Mechanical checks (1–4 below) are cheap; run them full-wiki regardless of scope.
-Reading-based checks (5–9) follow the chosen scope.
+기계 검사(1)는 범위와 무관하게 전체에 돌린다. 읽기 검사(2)만 범위를 따른다.
+`wiki/`에 페이지가 없으면 그렇다고 말하고 끝낸다. 없는 결함을 지어내지 않는다.
 
-If `wiki/` has no pages at all, say so and stop. An empty wiki has no findings, and
-inventing some is worse than reporting nothing.
-
-## 1. Broken links
-
-Extract every wikilink target and compare against actual filenames. Strip `|alias` and
-`#heading`, and fold case — Obsidian resolves links case-insensitively, so `[[Index]]`
-correctly points at `index.md` and a case-sensitive comparison will report it broken forever.
+## 1. 기계 검사 — 스크립트 하나
 
 ```bash
-python3 scripts/check_links.py
+python3 .claude/skills/wiki-lint/check.py
 ```
 
-That one script covers checks 1–3 (broken links, orphans, index drift) and exits non-zero if any
-fire. Three details in it are load-bearing, and shell pipelines here have gotten each one wrong:
+오류(exit 1): 프론트매터 키·순서·type·폴더·title·status·날짜, source 페이지의 `source_path`/`ingested`
+위치, 고아 페이지(index·log 제외 인바운드 0), index.md 드리프트(누락·유령·섹션·줄 형식).
+경고: 미해결 링크, `updated` < mtime, `source_path` 부재, 금지 패턴(Dataview, 작업 이력 절, 작업 시점
+표기, "인제스트", 전화·이메일·금액 의심).
 
-- **Never `sort`/`uniq`/`comm` on Hangul filenames.** On macOS those tools compare with the
-  `en_US.UTF-8` collation, not bytes, so distinct page names tie and collapse into one. A `comm`
-  based link check ran green on this wiki while silently dropping four pages from the right-hand
-  set. `LC_ALL=C` fixes the shell version; the script sidesteps it entirely.
-- **Normalize to NFC.** APFS stores filenames decomposed (NFD) while page text is composed (NFC),
-  so `[[에어로랩]]` and `에어로랩.md` differ byte-wise and every Hangul link reads as broken.
-- **Fold case, strip `|alias` and `#heading`.** Obsidian resolves links case-insensitively, so
-  `[[Index]]` correctly points at `index.md`. Obsidian also requires the alias pipe escaped inside
-  a table cell (`[[Pi 0.5\|π0.5]]`), so cut on `\` too or the backslash stays on the target.
+**셸 파이프라인으로 다시 짜지 않는다.** macOS `sort`/`uniq`/`comm`은 한글에서 서로 다른 이름을
+같다고 보고, APFS 파일명은 NFD인데 본문은 NFC이며, `grep -F "[[$n"`은 접두 매칭이라 짧은 이름의
+고아를 링크된 것으로 읽는다. 셋 다 이 위키에서 실제로 틀린 적 있다.
 
-Links are pulled from `wiki/` and `index.md` only: `CLAUDE.md` is the schema and its wikilinks are
-illustrative examples, and `log.md` is append-only, so a stale link there is not yours to rewrite.
-Both still count as *targets*, so `[[Index]]` and `[[Log]]` resolve.
+결과를 하나씩 **판단**한다. 고치는 방법이 다르다.
 
-Then judge each hit, because the fix differs:
+| 항목 | 판단 |
+|---|---|
+| 미해결 링크 | 오타(고침) / 있어야 할 페이지(만들지 제안, 조용히 만들지 않음) / 의도적 전방 참조(둠, 한 번 언급) |
+| 고아 | 허브 concept·entity·source 페이지 본문에서 링크. 인덱스 줄은 해결이 아니다 |
+| 인덱스 드리프트 | 줄 추가·삭제·섹션 이동. 요약이 아직 페이지를 설명하는지도 본다 |
+| 프론트매터 | 안전 수정 |
+| `updated` < mtime | 약한 신호. 복사·동기화에도 mtime이 바뀐다. 들여다보라는 뜻 |
+| "인제스트"·작업 시점 | 문장을 주제 서술로 고치거나 지운다. 그 정보는 `log.md`에 있다 |
+| 전화·이메일·금액 | 지우고 "계약서에 명시됨 ([[개발용역 계약서]])"처럼 원문을 가리킨다 |
 
-- **Typo / renamed page** — an existing page is obviously meant. Fix the link.
-- **Page that should exist** — the target is a real thing the wiki keeps referring to.
-  Offer to create it; don't create it silently, since a new page is a commitment to maintain it.
-- **Deliberate forward reference** — the human may be marking something to write later.
-  Leave it, mention it once.
+## 2. 읽기 검사 — 범위 내
 
-## 2. Orphans
+grep으로 안 잡힌다. 읽어야 한다. 전부 읽는 척하지 말고 고른다: 범위 내 변경 페이지 + 허브 페이지
+(인바운드 많고 `status: stable`, 모든 질의가 지나가는 것). Full인데 페이지가 많으면 허브와 마지막 lint
+이후 `ingest` 로그가 건드린 페이지부터 읽고, 나머지는 어디까지 읽었는지 보고에 적는다.
 
-A page with no inbound links is unreachable by the link graph, which makes it effectively
-deleted. Count inbound links **excluding `index.md` and `log.md`** — the index links
-everything by design, so counting it makes this check vacuous. A page linked *only* from
-the index or the log is the real signal.
+**근거 검사** — 이 위키 특유의 검사이고 가장 중요하다. 실질 주장마다 인용이 실제 source 페이지나
+`(사용자 확인 날짜)`를 가리키는가. 잡을 것:
+- 인용 없는 실질 주장.
+- 미인제스트 원문 언급. "사양서가 raw/에 있다", "아직 확인되지 않았다", "인제스트되면 …" 전부.
+  확인 방법: source 페이지의 `source_path`를 모아 인제스트된 원문 목록을 만들고, 위키가 언급하는
+  문서·제품·기관이 그 목록이나 사용자 확인에서 나왔는지 본다.
+- 일반지식 확장. 원문에 없는 약어 풀이, 기관 정식 명칭, 영문 표기, 제품 설명.
 
-`scripts/check_links.py` reports these. Don't hand-roll the shell version: `grep -F "[[$n"` matches
-on prefix, so `[[Remplir` also matches `[[Remplir RPM-5120V314AS1 …]]` and a genuinely orphaned
-short-named page reads as linked.
+의심 문장은 원문과 대조한다. `.md`/`.txt`는 그대로, PDF는 `CLAUDE.md`의 docker 절차, `.xlsx`는 같은
+절차에 `--with openpyxl`. 원문을 못 열면 "의심"으로 보고한다. 부재 서술의 경계: 그 원문 자체의 상태
+(미서명 초안, 빈 셀)는 증거라 남기고, **다른 문서가 있는지 모른다**는 문장은 부재 서술이라 뺀다.
 
-A `sources: ["[[X]]"]` line in frontmatter is a genuine inbound link to X — count it.
+**모순** — 함께 읽어야 보인다. 날짜, 수치, 귀속, 인과, 서로 멀어진 정의. 찾으면 `## Contradictions`에
+양쪽 주장과 인용, 어느 쪽이 나은지와 이유. 이미 기록된 모순이 새 원문으로 풀렸으면 그 절을 갱신하되
+이력은 남긴다.
 
-Fixing an orphan means finding where it belongs and linking it from there: the hub concept,
-the source page it came from, a related entity. Adding a link to the index is not a fix.
+**낡은 주장** — 마지막 lint 이후 `ingest` 로그 항목을 읽는다 (source 페이지에는 이력이 없다). 항목이
+"갱신했다"고 말하는 페이지에 실제로 그 갱신이 있는가. `(사용자 확인 …)` 문장 중 나중에 인제스트된
+원문이 뒷받침하는 것이 있으면 인용 교체 대상이다.
 
-## 3. Index drift
+**빠진 페이지** — 라틴 대문자 grep은 한국어 위키에서 아무것도 못 찾는다. 읽으면서 센다: 세 페이지
+이상에서 언급되는데 파일이 없는 것. 고유명·모델명·약어만 센다. 챔버·BMS처럼 일반어로 쓰이는 말은
+제외. `grep -rl "용어" wiki/`로 세되 `[[용어]]`로 세지 않는다. 링크가 안 걸렸다는 것이 핵심이니까.
 
-The index is where every query starts, so drift here silently degrades every answer.
-Two directions, both worth checking:
+**얇은 stub** — `grep -rl 'status: stub' wiki`, 그리고 source가 아닌데 `sources: []`이고 사용자 확인
+인용도 없는 페이지. 출처 없는 페이지는 출처 없는 주장이다.
 
-- Pages that exist but have no `index.md` line.
-- Index lines pointing at pages that no longer exist.
+**연구 공백** — 위키가 던지고 답하지 않은 질문. 원인 없는 entity, 기제만 있고 근거 없는 concept,
+노트들이 자꾸 가리키는 비교. 채울 수단을 제안한다: 사용자가 가진 문서를 `raw/`에 넣기, 사용자
+확인으로 정리할 결정, 이미 있는 재료로 쓸 `wiki/notes/`. 웹 검색 결과는 그 자체로는 위키에 못
+들어간다. 원문으로 저장해 인제스트하는 경로로만 제안한다.
 
-Also check that each page sits under the right heading (`### Entities` / `### Concepts` /
-`### Sources` / `### Notes`) and that its one-line summary still describes the page.
-Restore the exact format:
+## 3. 보고 먼저
 
-```
-- [[Vannevar Bush]] — engineer who proposed the memex in 1945.
-```
-
-## 4. Frontmatter integrity
-
-Per page: all seven keys present and in schema order (`title`, `type`, `tags`, `created`,
-`updated`, `status`, `sources`), `type` in `entity | concept | source | note | overview`,
-`title` matching the filename exactly, and `type: source` pages carrying `source_path:`
-and `ingested:`.
-
-Folder check: `wiki/entities/`, `wiki/concepts/`, `wiki/sources/`, `wiki/notes/` must match
-the page's type. Exempt `type: overview` — `index.md` and `log.md` legitimately live at the
-repo root, and a mechanical type→folder map flags them on every pass.
-
-Stale `updated:` — compare against filesystem mtime (`stat -f '%Sm' -t '%F' <file>` on macOS; the
-GNU `stat -c '%Y %n'` form is not available here); this is
-not a git repo, so there is no commit history to check. Treat a mismatch as a soft signal:
-mtime doesn't survive a copy or a sync, so it's a prompt to look, not a proven defect.
-
-## 5. Contradictions — the check that actually matters
-
-This one needs reading, not grepping. Two pages can disagree with no textual overlap at all.
-
-Don't pretend to read everything. Sample deliberately: pages changed in this scope, plus the
-hub pages (most inbound links, `status: stable`, the ones every query touches). Read them
-together and look for claims that can't both be true — dates, numbers, attributions, causal
-stories, definitions that drifted apart.
-
-When you find one, write a `## Contradictions` section on the affected page(s): both claims,
-both citations, and which is better supported and why. Never resolve it by quietly overwriting
-the older claim — disagreement between sources is information, and deleting it is the main way
-a wiki degrades. If a contradiction is already recorded and a newer source settles it, update
-the section to say so; keep the history.
-
-## 6. Stale claims
-
-A page still asserting something a newer source superseded, with no `## Contradictions`
-section recording the shift. Find these by reading source pages ingested since the last lint
-and asking what they changed — source pages carry a "what it changed in the wiki" section,
-which is the fastest way in. Then check whether the pages it should have changed actually did.
-
-## 7. Missing pages
-
-A name or concept mentioned across several pages with no page of its own. Frequency of
-mention is the signal — something referenced in five pages and defined in none is a hole in
-the graph. Bare proper nouns that never became `[[links]]` are the same smell:
-
-```bash
-grep -rhoE '\b([A-Z][a-z]+ ){1,3}[A-Z][a-z]+\b' wiki | sort | uniq -c | sort -rn | head -30
-```
-
-**That grep only finds Latin-script names.** This wiki is Korean, so it returns almost nothing
-useful and a clean run proves nothing. Answer this check by reading instead: while going through
-pages, note every named thing mentioned on three or more pages that has no file. Count inbound
-mentions with `grep -rl` on the term, not on `[[term]]` — the whole point is that it was never
-linked.
-
-Cross-check the top hits against existing filenames, and propose the ones that recur.
-
-## 8. Thin stubs
-
-`status: stub` pages that never grew (`grep -rl 'status: stub' wiki`), and pages with an
-empty `sources: []` or no inline citations at all. An uncited page is an assertion with no
-provenance — either find its source or mark it as unsourced in the text.
-
-## 9. Research gaps
-
-Be actively useful here — sourcing is the human's job, and a good list is worth more than
-another mechanical finding. Look for questions the wiki raises but doesn't answer: an entity
-with no origin, a concept whose mechanism is described but not evidenced, a comparison the
-notes keep gesturing at. Propose what would fill each gap — a web search, a specific document
-to drop in `raw/`, or a `wiki/notes/` synthesis you could write from material already present.
-
-## Report before fixing
-
-Some "problems" are a deliberate choice the human made, so auto-fixing them is destructive.
-Report first, grouped by severity, and let them pick.
-
-The one exception: trivially safe mechanical fixes — a missing index line, a stale `updated:`
-date, a link typo with one obvious target — can be batched and applied on a single
-confirmation. Don't ask about them one at a time; that's tedious and the human will just
-say yes to all of them.
+"문제"의 일부는 사용자의 의도적 선택이라 자동 수정이 파괴적이다. 심각도별로 보고하고 고르게 한다.
+예외는 안전한 기계적 수정(인덱스 줄 누락, `updated:`, 대상이 하나뿐인 링크 오타)이다. 하나씩 묻지
+말고 묶어서 한 번에 확인받는다.
 
 ```markdown
-## Lint — <scope> — YYYY-MM-DD
-N pages checked.
+## Lint — <범위> — YYYY-MM-DD
+N 페이지 검사.
 
-### Broken (fix these)
-1. **Broken link** — `wiki/concepts/Memex.md` → `[[Vanevar Bush]]`; typo for [[Vannevar Bush]]. *Safe fix.*
-2. **Missing page** — `[[Differential Analyzer]]` linked from 3 pages, no file. *Create?*
-3. **Index drift** — [[Hypertext]] exists but has no index line. *Safe fix.*
+### 깨짐 (고쳐야 함)
+1. **인덱스 드리프트** — [[벤팅 가스]] 있는데 index.md 줄 없음. *안전 수정.*
+2. **근거 없음** — `wiki/entities/SEN55.md` 3절, 인용 없는 수치 두 개.
 
-### Degrading (worth a look)
-4. **Contradiction** — [[Memex]] dates the proposal to 1945, [[As We May Think]] says 1939 draft. Needs a `## Contradictions` section on [[Memex]].
-5. **Orphan** — [[Ted Nelson]] has no inbound links; belongs under [[Hypertext]].
-6. **Stale** — [[Memex]] not updated since [[Project Xanadu]] was ingested.
-7. **Frontmatter** — `wiki/notes/Comparison.md` missing `updated:`. *Safe fix.*
+### 부패 중 (봐야 함)
+3. **작업 이력** — `wiki/concepts/정량적 성과지표.md:34` "인제스트해 확정했다". 주제 서술로 고침. *안전 수정.*
+4. **모순** — [[모의장치]] 조건당 45초 vs [[VOC Index]] 60초 예열. Contradictions 필요.
+5. **고아** — [[VOC Index]] 인바운드 없음. [[SEN55]]에서 링크.
 
-### Opportunities (your call)
-8. **Thin stub** — [[Bootstrapping]] still a stub after 3 ingests.
-9. **Gap** — nothing covers how the memex influenced later hypertext systems. Suggest a source, or I can draft a note from what's here.
+### 기회 (선택)
+6. **빠진 페이지** — "DEC 전해질" 4페이지 언급, 파일 없음. 만들까요?
+7. **공백** — 벤팅 판정 임계값 근거가 없음. 사용자 확인 또는 시험 기록 인제스트.
 
-**Safe fixes ready to batch:** 1, 3, 7 — apply all?
+**안전 수정 묶음:** 1, 3 — 한 번에 적용할까요?
 ```
 
-## After fixing
+## 4. 고친 뒤
 
-Update `index.md` for anything created or renamed, bump `updated:` on every page you touched,
-and append one entry to `log.md` — exact prefix, newest at the bottom, never rewrite past entries:
+만들거나 이름 바꾼 페이지를 `index.md`에 반영하고, 건드린 모든 페이지 `updated:`, `log.md` 맨 아래에
+한 항목. 사용자가 거절한 수정도 적는다. 안 적으면 다음 lint가 새 결함으로 다시 보고한다.
 
 ```
-## [2026-08-18] lint | Recent changes since last pass
-Checked 24 pages. Fixed 3 broken links, added 2 missing index lines.
-Recorded a contradiction on [[Memex]] about the 1945 date.
-Touched: [[Memex]], [[Vannevar Bush]], [[Hypertext]], [[Index]].
+## [2026-09-07] lint | Recent — 2026-09-04 이후
+16 페이지 검사. 인덱스 줄 1개 추가, 작업 이력 문장 1개 정리 ([[정량적 성과지표]]).
+[[모의장치]]에 45초/예열 모순 기록. 사용자가 DEC 전해질 페이지 생성은 보류.
 ```
 
-If the human declined a fix, note that too — otherwise the next lint re-reports it as new.
+마지막에 `check.py`를 다시 돌려 오류 0을 확인한다.
+
+## 흔한 실수
+
+| 실수 | 대신 |
+|---|---|
+| check.py 대신 셸 파이프라인 | 스크립트. 한글·NFD·접두 매칭 문제가 이미 해결돼 있다 |
+| 보고 없이 바로 수정 | 보고 → 승인 → 수정. 안전 수정만 묶어서 |
+| 모순을 최신 원문으로 덮어씀 | `## Contradictions`에 양쪽 |
+| 인덱스에 줄 추가해서 고아 "해결" | 본문 링크 |
+| 미인제스트 raw/ 내용으로 공백을 메움 | 인제스트 경로 제안만 |
+| 거절된 수정을 로그에 안 남김 | 다음 lint가 재보고한다 |

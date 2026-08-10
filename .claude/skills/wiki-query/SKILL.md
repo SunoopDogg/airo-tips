@@ -1,158 +1,84 @@
 ---
 name: wiki-query
-description: Answer a question from this project's LLM Wiki with citations to wiki pages, and file the durable answers back into wiki/notes/ so explorations compound instead of dying in chat history. Use it for any question touching the wiki's subject matter and for phrasings like what do we know about X, compare X and Y, what did the sources say about Z, summarize the state of my thinking on X, make me a table of the tradeoffs, does anything contradict X, is there anything in here about X, who is X, why does X matter — plus every follow-up question in an ongoing conversation about the wiki, including follow-ups phrased with no wiki keywords at all. Lean toward triggering. If a question could plausibly be answered from wiki/, this skill applies; reading index.md and finding nothing costs one file read, while answering from general knowledge silently bypasses the entire wiki and is the failure mode that matters. Do not use it when the human is filing a new source document into raw/ (that is wiki-ingest), or asking for a health check such as orphans, broken links, thin stubs, stale claims, or a contradiction sweep (that is wiki-lint).
+description: 이 프로젝트 위키의 내용을 묻는 질문에 사용. "X에 대해 뭐 알아", "X와 Y 비교해", "원문에서 Z를 뭐라고 했어", "X 정리해 줘", "표로 만들어", "X랑 어긋나는 거 있어", "X가 누구야/뭐야", "왜 X가 중요해", 그리고 위키 얘기 중의 모든 후속 질문(위키라는 말이 없어도). 위키로 답할 수 있을 법하면 쓴다. index.md 한 번 읽는 비용은 작고, 일반지식으로 답하면 위키를 통째로 건너뛴다. 새 원문 반영(wiki-ingest)이나 상태 점검(wiki-lint)에는 쓰지 않는다.
 ---
 
-# Wiki Query
+# 질의
 
-The human asks a question. You answer it from the wiki, with a trail they can follow, and you file
-the answer back if it is worth having again. Read `CLAUDE.md` at the repo root if you have not yet
-this session — it is the schema, and it is authoritative over anything here.
+## 개요
 
-Run `date +%F` once at the start. Every date you write (`created:`, `updated:`, the log heading)
-comes from that, not from memory.
+위키에서 답하고, 사용자가 따라갈 수 있는 인용 흔적을 남기고, 다시 볼 가치가 있으면 노트로
+파일링한다. 채팅에만 남은 답은 다음번에 다시 도출해야 한다. 파일링된 답은 원문처럼 쌓인다.
 
-Wiki filenames contain spaces. Quote every shell path — `cat "wiki/notes/Memex vs Modern RAG.md"`.
+결과물의 모양은 `CLAUDE.md`가 정한다. 시작할 때 `date +%F` 한 번, `CLAUDE.md`를 안 읽었으면 읽는다.
+파일명에 공백과 한글이 있으니 셸 경로는 항상 따옴표.
 
-## 1. Retrieve, in this order
+## 1. 찾기 — 이 순서
 
-**Read `index.md` first.** It is a curated one-line summary of every page, so it tells you which
-pages are relevant before you have read any of them. Grep tells you which pages contain a string,
-which is a different and worse question. Pick your candidates from the index.
+1. **`index.md`부터.** 전 페이지의 한 줄 요약이라 읽기 전에 후보를 고를 수 있다. grep은 "어느 파일에
+   이 문자열이 있나"라는 다른, 더 나쁜 질문에 답한다.
+2. **후보 페이지를 전부 읽고** `[[링크]]`와 `sources:`를 한 홉 따라간다. 이웃 페이지가 답의 절반을 들고
+   있다. `## Contradictions` 절이 있으면 그 판단까지 읽는다.
+3. **`grep -ril "용어" wiki/`를 두 번째 패스로.** 인덱스 요약이 못 담은 동의어·고유명을 잡는다.
+   파일명을 찾을 때는 `ls | grep` 대신 `index.md`를 쓴다 (APFS 파일명은 NFD라 한글 grep이 빗나간다).
+4. **`raw/`는 마지막이고, 근거가 아니라 발견이다.** 위키에 없는데 `raw/`에 관련 파일이 있으면 그것은
+   위키의 빈틈이다. **파일명만** 말하고 인제스트를 제안한다. 원문을 열어 내용을 전하는 것은 질의가
+   아니라 인제스트다. 미인제스트 원문의 내용을 답이나 노트에 쓰지 않는다.
 
-**Drill into the candidate pages.** Read them fully, and follow their `[[links]]` and `sources:`
-frontmatter one hop out — a page's neighbours usually hold half the answer, and the link graph is
-the real structure of this wiki.
+이 위키는 아직 작다. "위키에 없다"가 흔한 결론이고, 빨리 도달해서 그대로 말한다.
 
-**Grep `wiki/` as a second pass** for terms the index did not surface — synonyms, proper nouns,
-anything the one-line summaries could not have mentioned. `grep -ril "term" wiki/`. The index is
-written by hand and lags reality; this catches what it missed.
+## 2. 답하기
 
-**Fall back to `raw/` only when `wiki/` genuinely does not cover it.** `raw/` is immutable — read
-only, never edit, move, or delete. And treat needing it as a finding, not a rescue — if the answer
-was in a source but not in the wiki, the wiki has a gap. Say so in your answer and offer to run
-wiki-ingest on that source, or to write the missing page.
+- **모든 실질 주장에 `([[페이지]])`.** 페이지가 `(사용자 확인 날짜)`를 근거로 쓴 문장이면 그 표기를
+  그대로 옮긴다. 인용 없는 주장은 출처 없는 주장이다.
+- **위키의 서술과 내 추론을 가른다.** "읽어 보면 …인 것 같다"는 내 것이라고 표시한다. 흐리면 추론이
+  사실로 기억된다.
+- **어긋남은 조용히 해소하지 않는다.** 페이지끼리 다르면 둘 다 인용해 보여 주고, 어느 쪽 근거가 나은지
+  말하고, `## Contradictions`에 기록할지 제안한다.
+- **위키가 모르면 모른다고 한다.** 일반지식으로 메우지 않는다. 사용자가 위키 밖 답을 원하면
+  "위키 밖"이라고 표시해서 주고, 그 내용은 파일링하지 않는다.
+- 개인 연락처·금액은 답에도 옮기지 않는다. "계약서에 명시됨 ([[개발용역 계약서]])"로 가리킨다.
 
-Right now this wiki is close to empty. "The wiki does not cover this" is the expected outcome for
-most questions, not an edge case. Reach that conclusion quickly and say it plainly.
+## 3. 형태
 
-## 2. Answer
+채팅 prose가 기본이다. 비교 질문이면 표. 다시 볼 답이면 노트. 슬라이드·차트 도구는 없다
+(`CLAUDE.md` "아직 없는 것"). 사용자가 원하는 눈치면 말만 하고, 시키지 않은 도구를 만들지 않는다.
 
-**Cite with wikilinks.** Every substantive claim carries the page it came from — `Bush proposed the
-memex in 1945 ([[As We May Think]])`. This is what lets the human check you and jump to the page.
-An uncited claim reads as if it came from nowhere, because it did.
+## 4. 노트 파일링
 
-**Separate what the wiki says from what you concluded.** Sourced claims get citations; your own
-synthesis gets marked as yours ("reading these together, the pattern is..."). Blurring the two is
-how a confident inference becomes a remembered fact.
+기준은 하나다. **사용자가 이 답을 다시 도출하지 않고 다시 보고 싶어할까.**
 
-**Surface disagreement, do not resolve it silently.** If two pages conflict, present both with their
-citations and say which is better supported and why — and note that a `## Contradictions` section on
-the relevant page is where this belongs permanently (see `CLAUDE.md`). Offer to add it.
+- 파일링: 비교, 분석, 종합, 페이지 사이에서 끌어낸 연결, "X에 대한 현재 판단 정리".
+- 안 함: 조회, "어느 페이지에 X가 있어", 방금 한 말의 확인, **기존 페이지 한 절의 재서술**(그 페이지를
+  가리킨다). 한 줄 답 노트는 인덱스를 노이즈로 만든다.
+- 애매하면 한 줄로 묻는다. "노트로 남길까요?"
 
-**When the wiki does not know, say so.** Do not backfill from general knowledge, and do not pad the
-gap with plausible-sounding context — the value of this wiki is that its contents are traceable to
-sources the human chose. State the gap, then offer the real options: research it (clearly marked as
-outside-the-wiki knowledge), or point at a source to ingest.
+파일링하면 다섯 단계 전부. 하나라도 빠지면 반만 파일링된 것이다.
 
-## 3. Choose the output form
+1. `wiki/notes/<제목>.md`. `type: note`. `sources:`는 답이 기댄 source 페이지 **한 홉까지**
+   (concept 페이지를 썼고 그 페이지가 `[[Sensirion SEN5x Datasheet]]`를 인용하면 그것도 넣는다).
+   본문 인용 규칙은 다른 페이지와 같다. 사용자 확인 근거는 `(사용자 확인 날짜)`로 쓰고 `sources:`에는 안 넣는다.
+2. `index.md` `### Notes`에 한 줄. 자리표시자가 있으면 **교체**한다. `updated:`.
+3. `log.md` 맨 아래에 `## [날짜] query | 질문`. 파일링한 질의만 기록한다.
+4. 인바운드 링크. 가장 관련된 entity/concept 페이지 본문에 `[[노트 제목]]`을 문장으로 넣고 `updated:`.
+   걸 자리가 없으면 파일링하지 말고 그렇다고 말한다.
+5. `python3 .claude/skills/wiki-lint/check.py`. 오류 0.
 
-- **Prose in chat** — the default. Most questions want an answer, not an artifact.
-- **A comparison table** — when the question is comparative ("compare X and Y", "which of these
-  does Z"). Tables are for genuinely parallel dimensions; do not force prose into a grid.
-- **A filed note** — when the answer is durable. See below.
+로그 항목 예:
 
-Slides, charts, and diagrams are possible but not set up in this project. Mention it if the human
-seems to want one; do not build tooling for it unasked.
-
-## 4. File durable answers
-
-This is the point of the operation. An answer that only exists in chat history has to be re-derived
-the next time it comes up.
-
-The test — **would the human want this answer again without re-deriving it?**
-
-- **File it**: comparisons, analyses, syntheses, connections drawn between pages, answers to
-  "what's the state of my thinking on X", anything that took real reading to assemble.
-- **Do not file it**: lookups, "which page says X", "when was Y", clarifications of something you
-  just said. A wiki full of one-line answers is noise, and noise makes the index useless.
-- **Close call**: offer, do not assume. "Worth filing as a note?" costs one line.
-
-When you file, do all four steps — a note that skips any of them is half-filed:
-
-**1. Write the page** at `wiki/notes/<Exact Title>.md`. Filename is the title, exactly, Title Case,
-flat in `notes/`, so `[[Exact Title]]` resolves with no alias. Frontmatter keys in schema order.
-`sources:` lists the source pages the answer draws on, transitively — if you used a concept page
-that cites `[[As We May Think]]`, that source belongs here too.
-
-**2. Add the index line** under `### Notes` in `index.md`, and bump `index.md`'s own `updated:`.
-The `### Notes` section currently reads `_(filed answers, comparisons, analyses — none yet)_` —
-**replace that placeholder** with your line rather than adding underneath it, or it sits above real
-entries forever.
-
-**3. Append to `log.md`.** Newest at the bottom, never rewrite earlier entries. Only file-worthy
-queries get a log entry — logging every lookup fills the history with the same noise you just
-declined to file.
-
-**4. Add an inbound link.** A page nothing links to is a bug. The index line is a catalog entry, not
-a link — go to the most related entity, concept, or source page and add a real `[[mention]]` in its
-prose, plus a bumped `updated:`. If there is genuinely no page to link from, say so in your answer
-instead of leaving the note orphaned.
-
-## Worked example
-
-The human asks "how does Bush's memex differ from modern RAG?" — a comparison, durable, so it gets
-filed. (Illustrative only; these pages do not exist in this vault.)
-
-`wiki/notes/Memex vs Modern RAG.md`:
-
-```markdown
----
-title: Memex vs Modern RAG
-type: note
-tags: [comparison, retrieval]
-created: 2026-08-18
-updated: 2026-08-18
-status: developing
-sources: ["[[As We May Think]]"]
----
-
-Both [[Memex]] and retrieval-augmented generation attack the same problem — finding the relevant
-thing in a corpus too large to hold in mind — but they put the associative work in different hands.
-
-## Where they agree
-
-Bush's complaint was that indexes are artificial. Retrieval by rigid category loses the thing you
-half-remember ([[As We May Think]]). RAG shares the diagnosis and answers it with embeddings, which
-retrieve by similarity rather than by filing category.
-
-## Where they diverge
-
-The memex's trails are authored. A researcher walks a path once and it persists, reviewable and
-shareable ([[As We May Think]]). RAG's retrieval is computed per query and discarded — nothing
-accumulates, and the second reader gets no benefit from the first reader's path.
-
-My read, not the sources': this is the sharper difference than the usual analog-versus-neural
-framing. Bush was designing a memory that compounds; RAG is a lookup that does not.
-
-## Open question
-
-Whether anything in current practice recovers the durable-trail property. Nothing in the wiki
-addresses this yet — worth a source.
+```
+## [2026-09-07] query | 벤팅 판정에 VOC Index 임계값 방식이 충분한가
+[[VOC Index]], [[벤팅 가스]], [[모의장치]]를 읽고 적응형 기준선이 조건 전환에서 갖는 한계를 정리.
+[[VOC Index 임계값 판정의 한계]] 파일링, [[모의장치]]에서 인바운드 링크.
 ```
 
-`index.md`, under `### Notes`:
+## 흔한 실수
 
-```markdown
-- [[Memex vs Modern RAG]] — where Bush's associative trails differ from retrieval-augmented generation.
-```
-
-`log.md`, appended at the bottom:
-
-```markdown
-## [2026-08-18] query | How does Bush's memex differ from modern RAG?
-Compared authored trails against computed retrieval; both share the diagnosis, differ on whether
-paths persist. Read [[Memex]], [[As We May Think]], [[Retrieval-Augmented Generation]].
-Filed [[Memex vs Modern RAG]]; linked inbound from [[Memex]].
-Gap noted — nothing in the wiki on durable retrieval trails in current systems.
-```
+| 실수 | 대신 |
+|---|---|
+| index.md 건너뛰고 grep부터 | 인덱스 → 페이지 → 한 홉 → grep |
+| 위키에 없는 것을 일반지식으로 채움 | "위키에 없다" + 인제스트 제안 |
+| `raw/`를 열어 내용으로 답함 | 파일명만 말하고 인제스트 제안 |
+| 조회 답까지 노트로 파일링 | 다시 볼 답만 |
+| 노트 만들고 인바운드 링크 없음 | 관련 페이지 본문에 한 문장 |
+| 페이지끼리 다른데 한쪽만 답함 | 둘 다 인용, Contradictions 제안 |

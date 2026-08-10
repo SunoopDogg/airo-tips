@@ -1,182 +1,114 @@
 ---
 name: wiki-ingest
-description: Read a new source document and integrate it into this LLM Wiki — write its source page, update every existing entity and concept page it touches, record contradictions, refresh index.md and log.md. Use this whenever a source needs to enter the wiki, and lean toward using it rather than hand-editing pages — "ingest this", "process this source", "I dropped a new article in raw/", "add this paper to the wiki", "read this and file it", "here's a new source", "can you write this up", a bare file path or URL offered with any hint that it belongs in the wiki, a pasted article or transcript, or a batch like "ingest everything in raw/" or "process these five PDFs". Also use it when the human describes new material rather than naming it ("I found a good piece on X, put it in"), when a query turns up a source that was never ingested, or when someone asks what a source would change in the wiki. Do NOT use it to answer questions from the wiki's existing contents (that is wiki-query) or to audit the wiki for contradictions, orphans, stale claims, and broken links (that is wiki-lint).
+description: raw/에 새 원문이 들어왔거나, 사용자가 프로젝트 사실을 구두로 알려 줘서 위키에 반영해야 할 때 사용. "인제스트해", "이거 위키에 넣어", "raw/에 새 파일 넣었어", "이 논문/사양서/회의록 정리해", 파일 경로만 던져 줄 때, 붙여넣은 녹취·메일, "raw/ 전부 처리해" 같은 배치, 그리고 "이렇게 정해졌어", "발주사가 이렇게 확인했어" 같은 사용자 확인 사항. 위키 내용을 묻는 질문(wiki-query)이나 위키 상태 점검(wiki-lint)에는 쓰지 않는다.
 ---
 
-# Ingest a source
+# 인제스트
 
-A source arrives; the wiki absorbs it. The output is not a summary page — it is a summary page
-*plus* every edit that source implies across the pages you already have. A source that creates six
-new pages and updates none has not been integrated, it has been filed next to the wiki.
+## 개요
 
-One source realistically touches 5–15 pages. Default to one source at a time with the human in the
-loop; batch mode is at the bottom, for when they ask.
+원문 하나가 들어오면 위키가 그것을 **흡수**한다. 결과물은 source 페이지 하나가 아니라, source 페이지
+더하기 그 원문이 함의하는 기존 페이지 전부의 수정이다. 새 페이지 여섯 개를 만들고 기존 페이지를
+하나도 안 고쳤다면 통합이 아니라 위키 옆에 쌓아 둔 것이다. 원문 하나가 5–15 페이지를 건드린다.
 
-`raw/` is **immutable**. Read it, never edit, move, rename, or delete anything inside it. If a raw
-file is malformed, note that on the source page and work with what is there. Everything you write
-lives under `wiki/`, `index.md`, or `log.md`.
+결과물의 모양(프론트매터, 파일명, 링크, 근거 규칙, 이력 금지, 개인정보)은 전부 `CLAUDE.md`가 정한다.
+이 문서는 **순서**만 정한다. 충돌하면 `CLAUDE.md`가 이긴다. `raw/`는 불변이다.
 
-Conventions — frontmatter keys and order, filenames, link style, log and index formats — are frozen
-in `CLAUDE.md`. Read it if you have not this session. Dataview is not installed in this vault, so
-never emit Dataview queries; plain YAML frontmatter only.
+## 0. 세션 준비
 
-## 1. Read the source completely
+- `date +%F` 한 번. 이 세션의 모든 날짜는 이 값이다.
+- `CLAUDE.md`를 아직 안 읽었으면 읽는다.
+- `index.md` 전체를 읽는다. 위키가 무엇을 아는지 보는 가장 싼 방법이다.
+- `grep "^## \[" log.md | tail -5`로 최근 이력을 본다.
 
-Read the whole thing before deciding anything. Skimming produces pages that repeat the abstract.
+## 1. 원문을 끝까지 읽는다
 
-Markdown clipped from the web hangs images off the text: read the markdown first, then look at
-which `![](raw/assets/...)` images the text actually leans on and view those separately with Read.
-A chart, diagram, screenshot, or table-as-image often carries the claim the prose only gestures at.
-Skip decorative images — author avatars, logos, spacers.
+대충 훑으면 초록을 되풀이하는 페이지가 나온다.
 
-PDFs: read them in page ranges. Long transcripts: read straight through; the useful material is
-usually scattered, not in a conclusion section.
+- 대상을 고르려고 `raw/`를 나열하는 것은 괜찮다. 나열 결과는 위키에 옮기지 않는다.
+- `.md` / `.txt`: 그대로 읽는다. 통화 녹취에는 결론 절이 없다. 쓸 만한 것이 흩어져 있으니 끝까지.
+- PDF: 호스트에서 못 읽는다. `CLAUDE.md`의 docker 명령으로 추출한다. 긴 PDF는 페이지 범위로 나눈다.
+- `.xlsx` / `.docx`: 같은 컨테이너에서 `--with openpyxl` / `--with python-docx`로 뽑는다.
+- 명함 이미지: 내용은 위키에 들어가지 않는다 (`CLAUDE.md` "다루지 않는 정보"). 영상: 읽을 수 없다.
+  사용자가 내용을 말해 주면 그것이 근거다.
+- 읽으면서 적어 둔다: 고유명, 반복되는 개념, 날짜 있는 주장, 수치, 원문 자체의 상태(판본·미서명·빈 셀),
+  그리고 **이미 위키에 있는 서술과 어긋나 보이는 것**.
 
-Note as you go: proper nouns, recurring concepts, dated claims, numbers, quotable lines, and
-anything that sounds like it disagrees with something you have already filed.
+## 2. 위키에서 자리를 찾는다
 
-## 2. Orient in the existing wiki
+- 원문의 고유명·핵심어를 `grep -ril "용어" wiki/`로 찾는다. 한글·영문·약어 등 다른 표기도 함께.
+  "전압"처럼 흔한 말은 전부 걸리니 고유명·모델명·기관명부터.
+- 나온 페이지를 읽고 셋으로 가른다: 이 원문이 **늘리는** 페이지, **반박하는** 페이지, 여러 페이지에서
+  언급되지만 페이지가 없어서 이번에 만들 만한 것.
+- 세 번째 원문부터 "고칠 기존 페이지가 없다"는 답은 검색이 모자랐다는 뜻이다.
 
-Before writing, find out what the wiki already knows. Two moves:
+## 3. 페이지를 만들지 정한다
 
-- Read `index.md` top to bottom. It is the catalog, and it is short — this is the cheapest way to
-  see every page that exists.
-- Grep `wiki/` for the source's proper nouns and key terms, including near-misses. `grep -ril
-  "memex" wiki/` finds the pages that mention a thing without having a page for it.
+- 정의 이상을 말할 수 있고 다른 원문에서도 다시 나올 것이면 페이지. 아니면 기존 페이지의 한 문장에
+  `[[링크]]`. 아직 없는 페이지로 가는 링크는 오류가 아니라 "나중에 만들 만한 것"이다.
+- 원문이 한 줄만 주는 조직·인물은 페이지가 아니라 링크 걸린 한 문장이다. 두 번째 원문에서 다시 나오면
+  그때 만든다.
+- 만들기 전에 검색한다. 같은 것의 다른 표기가 둘 있으면 안 된다. entity/concept 경계는 `CLAUDE.md`의 판정표.
 
-Read the pages that come back. You are looking for three things: pages this source *extends*, pages
-it *contradicts*, and concepts mentioned repeatedly across pages that still have no page of their
-own — this source may be the one that earns them a page.
+## 4. 사용자에게 한 번 확인한다
 
-On an empty or near-empty wiki this step legitimately returns nothing, and the first ingest is
-mostly new pages. It stops being true fast. By the third or fourth source, "nothing to update" means
-you did not search hard enough.
+쓰기 전에 메시지 **하나**: 핵심 내용 5–10개, 만들 페이지, 고칠 페이지, 발견한 모순. 사용자의 몫은
+강조점 조정이다. 어느 줄기가 중요하고 어느 것이 잡담인지는 나중에 되찾기 비싸다.
 
-## 3. Decide what deserves a page
+페이지마다 승인 루프를 돌리지 않고, 읽으면 알 수 있는 것을 묻지 않는다. 제안에 말이 없으면 그대로
+진행한다. 사용자가 "그냥 해"라고 했거나 배치 모드면 이 단계를 건너뛴다.
 
-A new page is warranted when the thing has enough substance to say something beyond a definition,
-and when you expect it to recur across sources. Otherwise it is a mention on a page that already
-exists — a linked name in a sentence is not a loss, and `[[Some Concept]]` pointing at a file that
-does not exist yet is a legitimate marker that it might later.
+## 5. source 페이지를 쓴다
 
-Prefer editing an existing page over creating a near-duplicate. `Memex` and `The Memex` must not
-both exist; search before you create.
+`wiki/sources/<원문 제목>.md`. 제목은 파일명이 아니라 원문 자신의 제목이다. 제목이 없는 기록(통화·회의·
+노트)은 날짜·유형·상대·주제로 짓는다 (`2026-08-18 통화 이스트오토 시험기관 섭외`). 같은 날 같은 상대와
+두 번 통화해도 구별돼야 한다.
 
-Placement: `wiki/entities/` for things with a proper name (people, orgs, places, products,
-characters), `wiki/concepts/` for ideas, themes, mechanisms, recurring topics. Filename is the page
-title exactly, Title Case, flat inside the folder.
+프론트매터는 `CLAUDE.md`의 7키 순서이고, source 페이지는 `sources: []` **바로 뒤**에 `source_path:`와
+`ingested:`가 온다.
 
-## 4. Check in with the human
+구성: 링크 없는 한두 문장 요약 → 원문이 무엇인가(종류·판본·날짜·상태. 전사 오류·빈 셀·미서명 같은
+원문 자체의 상태도 여기) → 핵심 내용(주제별 절, 표 환영) → 인용할 만한 문구.
+**`## What it changed here` 절은 없다.** 무엇이 바뀌었는지는 `log.md`가 담는다. 개인 연락처와 금액은
+전사하지 않는다.
 
-Send **one** message before writing: 5–10 key takeaways, plus the plan — which pages you would
-create, which existing pages you would update, and any contradiction you spotted. Then write on
-acknowledgment.
+**사용자 확인 사항은 source 페이지를 만들지 않는다.** 해당 entity/concept 페이지에
+`(사용자 확인 YYYY-MM-DD)`로 바로 쓰고 `sources:`에는 넣지 않는다. 로그 제목은
+`ingest | 사용자 확인 · <주제>`.
 
-The human's job here is steering emphasis: they know which thread matters and which is trivia, and
-that judgment is expensive to recover later. Their job is not approving each page — do not run a
-confirm-per-page loop, and do not ask questions you can answer by reading. If they say nothing about
-a proposal, proceed with it.
+## 6. 닿는 페이지를 전부 고친다
 
-## 5. Write the source page
+노력의 대부분은 여기다.
 
-One page per raw source, in `wiki/sources/`, titled with the source's own title, not its filename —
-`raw/as-we-may-think.md` becomes `wiki/sources/As We May Think.md`.
-`sources:` is `[]` for source pages — they are the root of the citation graph — and they carry
-`source_path` and `ingested` immediately after `sources`.
+- 페이지마다 원문이 보태는 것(주장·날짜·수치·정정·연결)을 문장 안 인용 `([[원문 페이지]])`와 함께
+  추가한다. `sources:`에 추가하고 `updated:`를 올린다.
+- 어긋나면 `## Contradictions`. 덮어쓰지 않는다. 판단 기준은 `CLAUDE.md`.
+- `(사용자 확인 …)`로 적혀 있던 문장이 이번 원문으로 뒷받침되면 인용을 원문으로 바꾼다.
+- 새 페이지는 `index.md` 외 인바운드 링크가 1개 이상. 걸 데가 없으면 페이지가 아니라 문장이었다.
 
-```markdown
----
-title: As We May Think
-type: source
-tags: [essay, memex, information-retrieval]
-created: 2026-08-18
-updated: 2026-08-18
-status: stable
-sources: []
-source_path: raw/as-we-may-think.md
-ingested: 2026-08-18
----
+## 7. 장부
 
-Vannevar Bush's July 1945 *Atlantic* essay arguing that the postwar scientific effort should turn
-from weapons to making the human record accessible.
+- `index.md`: 새 페이지 한 줄(자리표시자는 교체), 틀려진 기존 요약 수정, `updated:`.
+- `log.md`: 맨 아래에 `## [날짜] ingest | 대상`, 본문 2–5줄에 만든·고친 페이지 전부 `[[링크]]`.
+- 편집한 모든 페이지 `updated:`, 내용이 찼으면 `status:` 승격.
+- 마지막으로 `python3 .claude/skills/wiki-lint/check.py`. 오류 0이어야 끝이다. 경고는 각각 읽고 판단.
 
-## What this is
+## 배치 모드
 
-An essay by [[Vannevar Bush]], then head of the US Office of Scientific Research and Development,
-written for a general audience. It is discursive rather than technical — the machines it describes
-are sketches, not designs.
+여러 원문을 한 번에 요청받으면 4단계 확인을 생략하고 끝에 한 번 표로 보고한다
+(원문 → 만든 페이지 → 고친 페이지 → 모순). 나머지는 그대로다. 특히 **순차로** 처리한다. 세 번째
+원문이 첫 번째가 만든 페이지를 고쳐야 하므로 병렬은 서로 모르는 페이지 더미를 만든다.
 
-## Key claims
+## 흔한 실수
 
-- The bottleneck in research is retrieval, not production: specialization has outrun any one
-  researcher's ability to find what is already known.
-- Indexing by hierarchy fights the mind, which works by association. See [[Associative Indexing]].
-- The [[Memex]] — a desk that stores a library on microfilm and lets a user build named trails of
-  linked documents — would make those associative paths shareable and permanent.
-
-## Notable quotes
-
-> "The summation of human experience is being expanded at a prodigious rate, and the means we use
-> for threading through the consequent maze to the momentarily important item is the same as was
-> used in the days of square-rigged ships."
-
-## What it changed here
-
-Created [[Memex]], [[Associative Indexing]], [[Vannevar Bush]]. Added the pre-digital origin of
-hypertext to [[Hypertext]], which previously started at [[Project Xanadu]].
-```
-
-Keep "What it changed here" honest — it is the diff of this ingest, and a lint pass reads it later.
-
-## 6. Update the pages this source touches
-
-This is the real work; budget most of your effort here.
-
-For each existing page the source bears on, add what the source contributes — a claim, a date, a
-correction, a new connection — cited inline: `Bush proposed the memex in 1945 ([[As We May Think]]).`
-Add the source to that page's `sources:` list, and bump `updated:`.
-
-Link generously. Every proper noun or named concept with a page (or one it deserves) becomes
-`[[Link]]` on first mention in the body.
-
-**Contradictions are never silently overwritten.** When the source disagrees with something already
-on a page, add or extend a `## Contradictions` section on the affected page: state both claims, cite
-both sources, and say which is better supported and why — primary over secondary, specific over
-vague, later over earlier when the later source had access to more. If you genuinely cannot tell,
-write that. A newer source is not automatically right, and disagreement between sources is
-information; losing it is the main way this wiki degrades.
-
-**No new page is left orphaned.** Every page you create needs at least one inbound `[[link]]` from
-somewhere other than `index.md` — usually the source page, better still a related concept or entity
-page. If nothing in the wiki naturally links to a new page, that is a signal it should have been a
-mention instead.
-
-## 7. Bookkeeping
-
-- `index.md`: add one line per new page under its `### Entities` / `### Concepts` / `### Sources` /
-  `### Notes` heading, in the form `- [[Vannevar Bush]] — engineer who proposed the memex in 1945.`
-  Replace the `_(none yet)_` placeholder under a heading rather than appending beneath it. Revise
-  existing lines whose summary the source made wrong.
-- `log.md`: append at the bottom, never rewrite past entries. Exact heading prefix, then 2–5 lines
-  covering what changed and every page touched as `[[links]]`:
-
-  ```
-  ## [2026-08-18] ingest | As We May Think
-  Ingested Bush's 1945 essay. Created [[Memex]], [[Associative Indexing]], [[Vannevar Bush]].
-  Updated [[Hypertext]] with its pre-digital origin; noted a date conflict with [[Project Xanadu]]
-  on its Contradictions section.
-  ```
-- Bump `updated:` on **every** page you edited, including `index.md` and `log.md` themselves. A
-  stale `updated:` makes the next lint pass untrustworthy.
-- Move `status:` along when the page earns it: `stub` → `developing` → `stable`.
-
-Then verify quickly: every new page has an inbound link, every new page is in `index.md`, every
-claim you added carries a citation, and the log entry names the same pages you actually touched.
-
-## Batch mode
-
-When the human asks for several sources at once, skip the per-source checkpoint and report once at
-the end — a table of source → pages created → pages updated → contradictions found. Everything else
-holds, especially step 2: ingest sources one at a time in sequence so that source three can update
-the pages source one created. Ingesting them in parallel produces a pile of disconnected pages,
-which is the failure this whole skill exists to prevent.
+| 실수 | 대신 |
+|---|---|
+| 파일명·폴더명으로 내용 추론 | 읽은 것만 쓴다. `raw/`에 있다는 사실 자체도 쓰지 않는다 |
+| 약어·기관명·직책을 일반지식으로 풀기 ("대표님" → "대표이사") | 원문 표기 그대로 |
+| "이전 대화는 위키에 없다", "아직 확인되지 않았다" 같은 부재 서술 | 쓰지 않는다. 원문이 "저번처럼"이라고만 했으면 그만큼만 |
+| source 페이지에 "이 원문으로 X를 확정했다", "인제스트해 …" | `log.md`에만. 페이지는 주제만 서술 |
+| 새 원문이 기존 서술과 다르면 고쳐 쓰기 | `## Contradictions`에 양쪽 다 |
+| 새 페이지만 만들고 기존 페이지는 그대로 | 2단계로 돌아가 검색 |
+| 명함·계약 금액 전사 | "계약서에 명시됨 ([[개발용역 계약서]])" |
+| PDF를 Read로 열기 | docker 명령 |
+| `updated:` 안 올리기 | 다음 lint를 통째로 못 믿게 된다 |
