@@ -22,7 +22,7 @@ SEN5x는 치수·하드웨어·펌웨어 인터페이스가 동일하고 출력 
 | SEN54-SDN-T | PM, Relative Humidity, Temperature, VOC Index | 3.000.535 |
 | SEN55-SDN-T | PM, Relative Humidity, Temperature, VOC Index, NOx Index | 3.000.593 |
 
-RH·T와 VOC 센서는 SEN54와 SEN55에만 들어 있고, NOx 신호는 SEN55에만 있다. 사양과 명령은 해당 출력이 그 제품에 포함된 경우에만 적용된다. 이 프로젝트가 쓰는 모델은 [[SEN55]]다.
+RH·T와 VOC 센서는 SEN54와 [[SEN55]]에만 들어 있고, NOx 신호는 SEN55에만 있다. 사양과 명령은 해당 출력이 그 제품에 포함된 경우에만 적용된다.
 
 ## 판독 — 8개 데이터 신호
 

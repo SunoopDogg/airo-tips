@@ -10,7 +10,7 @@ source_path: raw/sensor-spec/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf
 ingested: 2026-09-07
 ---
 
-에스프레시프(Espressif)의 Wi-Fi + Bluetooth LE MCU 모듈 ESP32-S3-WROOM-1과 ESP32-S3-WROOM-1U의 데이터시트. 판본은 v1.4(2024-11-14), 52쪽이다. 모의장치에서 SEN55 3대를 읽는 컨트롤러 [[ESP32-S3-WROOM-1]]의 사양 출처다.
+에스프레시프(Espressif)의 Wi-Fi + Bluetooth LE MCU 모듈 ESP32-S3-WROOM-1과 ESP32-S3-WROOM-1U의 데이터시트. 판본은 v1.4(2024-11-14), 52쪽이다. [[ESP32-S3-WROOM-1]]의 사양 출처다.
 
 ## 원문이 무엇인가
 
@@ -49,7 +49,7 @@ ingested: 2026-09-07
 
 GPIO0 = 1이면 SPI Boot(플래시에서 실행), GPIO0 = 0 & GPIO46 = 0이면 Joint Download Boot(UART0 또는 USB로 다운로드)다. 래치는 리셋 뒤 3 ms 홀드 시간 후 풀리고 그 뒤 핀은 일반 IO로 쓸 수 있다. PSRAM 없는 모듈은 **전원 인가 시 외부 회로가 GPIO45를 High로 끌어올리지 않도록** 해야 한다.
 
-## 주변장치 — 이 프로젝트에 걸리는 것
+## 주변장치
 
 **I2C.** 컨트롤러 **2개**, 마스터/슬레이브 설정 가능. 표준 모드 100 kbit/s, 고속 모드 400 kbit/s, 풀업 강도에 따라 최대 800 kbit/s. 7비트·10비트 주소. **핀은 GPIO Matrix를 통해 어느 GPIO든 고를 수 있다.**
 

@@ -48,3 +48,11 @@ entity·concept·note를 topic 하나로 합치고 wiki/topics/로 옮김. 15개
 본문·제목·위키링크는 그대로다. CLAUDE.md의 type↔폴더 표를 3행으로 줄이고 "경계가 애매한 것들의 판정"
 절을 삭제. index.md의 Entities·Concepts·Notes 세 절을 Topics 하나로 합침. check.py의 FOLDER·SECTION,
 wiki-lint·wiki-ingest·wiki-query의 폴더 참조를 맞춤.
+
+## [2026-09-07] lint | source 페이지 정리 — 원문 밖 서술 제거
+source 페이지 5건에서 원문 밖의 서술을 걷어냈다. [[ESS 화재감지 알고리즘 (2023 추계학술발표논문집)]]의
+"이 위키에서의 위치"·"이 위키 관점에서의 한계"·인용 지침, [[정량적 성과지표 항목표]]와 [[개발용역 계약서]]의
+교차 판정과 `(사용자 확인)`, [[Sensirion SEN5x Datasheet]]·[[ESP32-S3-WROOM-1 & WROOM-1U Datasheet]]의
+프로젝트 서술이 대상이다. 삭제분은 전부 topic 페이지에 이미 인용과 함께 있고, 유일한 예외였던 표6
+마지막 구간의 인위적 열자극 단서는 [[열폭주]]로 옮겼다. CLAUDE.md에 "source 페이지는 그 원문만
+서술한다" 절을 추가.
