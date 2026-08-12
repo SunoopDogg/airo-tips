@@ -34,6 +34,7 @@ LAYER_STYLES: dict[str, tuple[str, int, float, str | None]] = {
     "OUTLINE": ("CONTINUOUS", 25, 2.5, None),
     "HANDLE": ("CONTINUOUS", 30, 3.0, None),
     "SEN55": ("CONTINUOUS", 25, 2.5, None),
+    "ELECTRICAL_ENVELOPE": ("DASHED", 25, 2.5, "10 6"),
     "DIM": ("CONTINUOUS", 18, 2.0, None),
     "LEADER": ("CONTINUOUS", 18, 2.0, None),
 }
@@ -247,6 +248,10 @@ def build(p: dict[str, Any]) -> tuple[Drawing, dict[str, float]]:
     m.update({"outer_w": m["w"] + 2 * wall, "outer_d": m["d"] + 2 * wall, "outer_h": m["h"] + 2 * wall})
     fx, fy, gap = 450.0, 2100.0, 700.0
     sx, sy, px, py = fx + m["w"] + gap, fy, fx, 250.0
+    electrical = p["electrical_envelope"]
+    ew = number(electrical["width"], "electrical_envelope.width")
+    ed = number(electrical["depth"], "electrical_envelope.depth")
+    eh = number(electrical["height"], "electrical_envelope.height")
 
     def frame(x: float, y: float, width: float, name: str) -> tuple[float, float, float, float]:
         top_t, leg_w = 18.0, 35.0  # sheet-layout depiction only
@@ -263,6 +268,13 @@ def build(p: dict[str, Any]) -> tuple[Drawing, dict[str, float]]:
     front_view = (fx - wall, fy - wall, fx + m["w"] + wall, fy + m["h"] + wall)
     d.rect(front_view[0], front_view[1], m["outer_w"], m["outer_h"], "OUTLINE")
     d.rect(fx, fy, m["w"], m["h"], "EFFECTIVE")
+    efx = fx - wall + (m["outer_w"] - ew) / 2
+    efy = fy + m["h"] + wall
+    d.rect(efx, efy, ew, eh, "ELECTRICAL_ENVELOPE")
+    electrical_front_view = (front_view[0], front_view[1], front_view[2], efy + eh)
+    add_leader_label(d, efx + ew, efy + eh, "전장 설치 공간(제안) 챔버 외부", electrical_front_view, "right", 85, 1)
+    d.dim_h(efx, efx + ew, efy + eh + 100, f"전장 폭 {ew:.0f} (제안)")
+    d.dim_v(efy, efy + eh, efx - 80, f"전장 높이 {eh:.0f} (제안)", "left")
     d.regions["chamber_front"] = (fx, fy, fx + m["w"], fy + m["h"])
     pack_x, pack_y = fx + m["left"], fy + m["bottom"]
     d.regions["frame_front"] = frame(fx, fy, m["w"], "frame_front")
@@ -315,6 +327,10 @@ def build(p: dict[str, Any]) -> tuple[Drawing, dict[str, float]]:
     side_view = (sx - wall, sy - wall, sx + m["d"] + wall, sy + m["h"] + wall)
     d.rect(side_view[0], side_view[1], m["outer_d"], m["outer_h"], "OUTLINE")
     d.rect(sx, sy, m["d"], m["h"], "EFFECTIVE")
+    esx = sx - wall + (m["outer_d"] - ed) / 2
+    esy = sy + m["h"] + wall
+    d.rect(esx, esy, ed, eh, "ELECTRICAL_ENVELOPE")
+    d.dim_h(esx, esx + ed, esy + eh + 100, f"전장 깊이 {ed:.0f} (제안)")
     spx, spy = sx + m["front"], sy + m["bottom"]
     cable_y = sy + m["bottom"]
     d.regions["frame_side"] = frame(sx, sy, m["d"], "frame_side")
@@ -334,6 +350,7 @@ def build(p: dict[str, Any]) -> tuple[Drawing, dict[str, float]]:
     plan_view = (px - wall, py - wall, px + m["w"] + wall, py + m["d"] + wall)
     d.rect(plan_view[0], plan_view[1], m["outer_w"], m["outer_d"], "OUTLINE")
     d.rect(px, py, m["w"], m["d"], "EFFECTIVE")
+    d.rect(px - wall + (m["outer_w"] - ew) / 2, py - wall + (m["outer_d"] - ed) / 2, ew, ed, "ELECTRICAL_ENVELOPE")
     d.rect(px + m["left"], py + m["front"], m["pack_w"], m["pack_d"], "PACK")
     d.text(px, py + m["d"] + 130, "평면", 30)
     d.dim_h(px - wall, px + m["w"] + wall, py - 185, f"외형 폭 {m['outer_w']:.0f} (W_out)")
@@ -347,7 +364,7 @@ def build(p: dict[str, Any]) -> tuple[Drawing, dict[str, float]]:
 
     # 표제란과 주기는 각각 독립 앵커에서 위로 자란다.
     tbx, tby, tbw, tbh = sx, 240.0, m["d"], 190.0
-    notes = ["주기", f"1. 재질 {p['enclosure']['material']['value']}, 판 두께 {wall:g} mm, 밀폐 등급 {p['enclosure']['sealing_grade']['value']}.", f"2. 내부 유효 {m['w']:.0f} x {m['d']:.0f} x {m['h']:.0f} mm; 외형 {m['outer_w']:.0f} x {m['outer_d']:.0f} x {m['outer_h']:.0f} mm.", "3. 센서 지점 3개소(포트 아님): 상부 SEN55 3대.", "4. SEN55 상세는 도면 J3-SN-001 참조. 외형 방향은 흡입구 위치 미상으로 단정하지 않는다.", "5. SEN55 금속 실드는 내부 GND와 연결된다. 챔버 직결 금지, 절연 브래킷 또는 등전위 설치.", "6. SEN55의 I2C 권장 배선 길이 10 cm 미만은 전장이 챔버 외부인 이 배치에서 준수 불가. 차폐 케이블 사용과 P82B715 버스 익스텐더 채널별 1쌍 삽입을 검토 중이며 둘 다 미확정. 배선 길이도 미정.", "7. 포트 구경은 종속값이다: 주입·배기는 장비 토출구·유량·압력손실·누설 시험, 케이블은 선정 케이블 외경(관통판 + 외경별 글랜드, 예비구 막음).", "8. 배수 포트를 두지 않는다. 관통부는 공용 주입 1구, 배기 1구, 케이블 관통 포트뿐이다. 잔류액은 퍼지·안전 확인 후 도어를 열어 회수한다.", "9. 전장(ESP32-S3-WROOM-1 N16R8 1대, PCA9548A 1개)은 챔버 상단 외부에 둔다. 챔버 내부에는 SEN55 3대만 노출한다. 전장함 규격과 설치 상세는 미정.", "10. SEN55 3대는 ESP32-S3의 I2C 1버스에서 PCA9548A(주소 0x70, A0=A1=A2=GND, RESET은 VCC 풀업)를 거쳐 채널 0~2에 한 대씩 연결한다. 전원 5 V와 통신은 USB 1개로 통합한다."]
+    notes = ["주기", f"1. 재질 {p['enclosure']['material']['value']}, 판 두께 {wall:g} mm, 밀폐 등급 {p['enclosure']['sealing_grade']['value']}.", f"2. 내부 유효 {m['w']:.0f} x {m['d']:.0f} x {m['h']:.0f} mm; 외형 {m['outer_w']:.0f} x {m['outer_d']:.0f} x {m['outer_h']:.0f} mm.", "3. 센서 지점 3개소(포트 아님): 상부 SEN55 3대.", "4. SEN55 상세는 도면 J3-SN-001 참조. 외형 방향은 흡입구 위치 미상으로 단정하지 않는다.", "5. SEN55 금속 실드는 내부 GND와 연결된다. 챔버 직결 금지, 절연 브래킷 또는 등전위 설치.", "6. SEN55의 I2C 권장 배선 길이 10 cm 미만은 전장이 챔버 외부인 이 배치에서 준수 불가. 차폐 케이블 사용과 P82B715 버스 익스텐더 채널별 1쌍 삽입을 검토 중이며 둘 다 미확정. 배선 길이도 미정.", "7. 포트 구경은 종속값이다: 주입·배기는 장비 토출구·유량·압력손실·누설 시험, 케이블은 선정 케이블 외경(관통판 + 외경별 글랜드, 예비구 막음).", "8. 배수 포트를 두지 않는다. 관통부는 공용 주입 1구, 배기 1구, 케이블 관통 포트뿐이다. 잔류액은 퍼지·안전 확인 후 도어를 열어 회수한다.", "9. 전장(ESP32-S3-WROOM-1 N16R8 1대, PCA9548A 1개)은 챔버 상판 중앙 외부에 둔다. 챔버 내부에는 SEN55 3대만 노출한다. 표시한 300 x 150 x 120 mm 는 제안값(사람 미승인)이며 실제 전장함은 미선정이다. 상판 부착 방식과 배선 경로는 미정.", "10. SEN55 3대는 ESP32-S3의 I2C 1버스에서 PCA9548A(주소 0x70, A0=A1=A2=GND, RESET은 VCC 풀업)를 거쳐 채널 0~2에 한 대씩 연결한다. 전원 5 V와 통신은 USB 1개로 통합한다."]
     def text_block(name: str, x: float, bottom: float, lines: list[str]) -> None:
         spacing = 42.0
         top = bottom + (len(lines) - 1) * spacing + 30
@@ -471,7 +488,7 @@ def acute_segment_angle(first: tuple[Any, ...], second: tuple[Any, ...]) -> floa
 
 
 def assert_leaders_do_not_obscure_geometry(drawing: Drawing) -> None:
-    guarded_layers = {"EFFECTIVE", "OUTLINE", "PACK", "FRAME", "DOOR", "WINDOW", "HANDLE", "SEN55", "PORT"}
+    guarded_layers = {"EFFECTIVE", "OUTLINE", "PACK", "FRAME", "DOOR", "WINDOW", "HANDLE", "SEN55", "PORT", "ELECTRICAL_ENVELOPE"}
     geometry = [args for kind, args in drawing.entities if kind == "LINE" and args[-1] in guarded_layers]
     # 15°와 SVG 선 굵기(2)의 3배는 교차가 아니라 나란히 붙어 선을 가리는 경우만 잡는다.
     parallel_angle_limit, proximity_limit = 15.0, 6.0
@@ -577,7 +594,7 @@ def write_svg(d: Drawing, path: Path) -> None:
     width, height = max_x - min_x, max_y - min_y
     svg_width, svg_height = width, height
     assert abs((svg_width / svg_height) - (width / height)) < 1e-12
-    styles = {"PACK": "#1261a0", "FRAME": "#d97706", "OUTLINE": "#444", "HANDLE": "#c026d3", "DIM": "#7a3e00", "PORT": "#a02020", "SENSOR": "#087f5b", "SEN55": "#0f766e", "EFFECTIVE": "#111"}
+    styles = {"PACK": "#1261a0", "FRAME": "#d97706", "OUTLINE": "#444", "HANDLE": "#c026d3", "DIM": "#7a3e00", "PORT": "#a02020", "SENSOR": "#087f5b", "SEN55": "#0f766e", "EFFECTIVE": "#111", "ELECTRICAL_ENVELOPE": "#7c3aed"}
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{min_x} {-max_y} {width} {height}" width="{svg_width}" height="{svg_height}">', '<rect x="-10000" y="-10000" width="20000" height="20000" fill="white"/>', '<g fill="none" stroke="#111" stroke-width="3" vector-effect="non-scaling-stroke">']
     for kind, args in d.entities:
         color = styles.get(str(args[-1]), "#111")
@@ -596,6 +613,43 @@ def write_svg(d: Drawing, path: Path) -> None:
             out.append(f'<text x="{x}" y="{-y}" font-size="{size}" fill="{styles.get(layer, "#111")}">{html.escape(str(value))}</text>')
     out.append('</g></svg>')
     path.write_text("\n".join(out) + "\n", encoding="utf-8")
+
+
+def layer_rects(drawing, layer: str) -> list:
+    """레이어의 LINE 4개씩을 한 사각형으로 묶어 바운딩 박스를 돌려준다."""
+    lines = [args for kind, args in drawing.entities if kind == "LINE" and args[-1] == layer]
+    assert len(lines) % 4 == 0, f"{layer} 레이어의 선분 개수가 4의 배수가 아니다"
+    out = []
+    for i in range(0, len(lines), 4):
+        group = lines[i:i + 4]
+        xs = [v for x1, y1, x2, y2, _ in group for v in (x1, x2)]
+        ys = [v for x1, y1, x2, y2, _ in group for v in (y1, y2)]
+        out.append((min(xs), min(ys), max(xs), max(ys)))
+    return out
+
+
+def assert_electrical_envelope_is_outside(drawing, p, m) -> int:
+    """검사 18: 정면·측면 외부 배치와 비중첩, 평면 외형 내 포함·중심 일치."""
+    electrical = layer_rects(drawing, "ELECTRICAL_ENVELOPE")
+    outlines = layer_rects(drawing, "OUTLINE")
+    assert len(electrical) == 3, "전장 설치 공간은 정면·측면·평면에 정확히 3개여야 한다"
+    assert len(outlines) == 3, "챔버 외형은 정면·측면·평면에 정확히 3개여야 한다"
+    checked = 0
+    for view_index in (0, 1):
+        box, outline = electrical[view_index], outlines[view_index]
+        assert box[1] >= outline[3], f"전장 설치 공간이 챔버 외형 상면 아래로 내려온다: view={view_index}"
+        for layer in ("PACK", "SEN55", "EFFECTIVE", "OUTLINE"):
+            rects = layer_rects(drawing, layer)
+            # PACK·EFFECTIVE·OUTLINE은 정면·측면·평면 순서, SEN55는 정면에만 표시한다.
+            targets = rects if layer == "SEN55" and view_index == 0 else ([] if layer == "SEN55" else [rects[view_index]])
+            for other in targets:
+                assert_boxes_do_not_overlap(box, other)
+                checked += 1
+    plan, outline = electrical[2], outlines[2]
+    assert outline[0] <= plan[0] and outline[1] <= plan[1] and plan[2] <= outline[2] and plan[3] <= outline[3], "평면 전장 공간이 챔버 외형 밖으로 나간다"
+    assert math.isclose(plan[0] + plan[2], outline[0] + outline[2], rel_tol=0, abs_tol=1e-9), "평면 전장 공간의 가로 중심이 외형 중심과 다르다"
+    assert math.isclose(plan[1] + plan[3], outline[1] + outline[3], rel_tol=0, abs_tol=1e-9), "평면 전장 공간의 세로 중심이 외형 중심과 다르다"
+    return checked
 
 
 def validate_svg(path: Path) -> None:
@@ -665,6 +719,8 @@ def main() -> None:
     sen55_lines = [args for kind, args in drawing.entities if kind == "LINE" and args[-1] == "SEN55"]
     assert len(sen55_lines) % 4 == 0 and len(sen55_lines) // 4 == len(p["sensor_points"])
     print(f"Sensor marker validation OK: SEN55 레이어 사각형 {len(sen55_lines) // 4}개가 sensor_points {len(p['sensor_points'])}개와 일치")
+    checked = assert_electrical_envelope_is_outside(drawing, p, m)
+    print(f"Electrical envelope validation OK: 정면·측면 외형 상면 이상, {checked}개 도형 쌍 비중첩; 평면 외형 내 포함·중심 일치")
     assert_text_boxes_do_not_overlap(drawing)
     print(f"Text/geometry validation OK: {len(drawing.text_boxes)} label boxes do not overlap text, LINE, or CIRCLE")
     assert_leaders_do_not_obscure_geometry(drawing)

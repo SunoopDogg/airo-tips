@@ -2,7 +2,7 @@
   "meta": {
     "drawing_title": "지표 3 ESS 운용환경 모의 챔버 3면도",
     "drawing_number": "J3-CH-001",
-    "revision": "J",
+    "revision": "K",
     "date": "2026-09-07",
     "scale": "NTS (치수값 mm)",
     "unit": "mm"
@@ -37,19 +37,10 @@
     "height": {"value": 100, "unit": "mm", "status": "fixed", "source": "2026-09-02 사람 결정; 설계서 6.1 받침 프레임; 2026-09-03 집수 근거 제거"}
   },
   "electrical_envelope": {
-    "zone": {
-      "value": "top-exterior",
-      "unit": "zone",
-      "status": "fixed",
-      "source": "챔버 내부에는 SEN55만 두고 ESP32-S3-WROOM-1·PCA9548A 등 전장은 챔버 상단 외부에 둔다 (사용자 확인 2026-09-07); 2026-09-04 챔버 내부 제안(300x150x120 mm, 사람 미승인)은 이 결정으로 폐기됨"
-    },
-    "enclosure_dimensions": {
-      "value": null,
-      "unit": "mm",
-      "status": "dependent",
-      "depends_on": "선정된 전장함 규격과 챔버 상면 설치 방식. 챔버 외부이므로 내부 유효 치수에 영향을 주지 않는다",
-      "source": "위키에 전장함 외형 치수가 없음 (사용자 확인 2026-09-07)"
-    }
+    "width": {"value": 300, "unit": "mm", "status": "proposed", "source": "REV I 챔버 내부 제안값을 챔버 외부 배치에 재사용 (사용자 지시 2026-09-07); 실제 전장함 규격 미선정이므로 사람 미승인"},
+    "depth": {"value": 150, "unit": "mm", "status": "proposed", "source": "REV I 챔버 내부 제안값을 챔버 외부 배치에 재사용 (사용자 지시 2026-09-07); 실제 전장함 규격 미선정이므로 사람 미승인"},
+    "height": {"value": 120, "unit": "mm", "status": "proposed", "source": "REV I 챔버 내부 제안값을 챔버 외부 배치에 재사용 (사용자 지시 2026-09-07); 실제 전장함 규격 미선정이므로 사람 미승인"},
+    "zone": {"value": "top-exterior-center", "unit": "zone", "status": "fixed", "source": "챔버 내부에는 SEN55만 두고 ESP32-S3-WROOM-1·PCA9548A 등 전장은 챔버 상단 외부에 둔다 (사용자 확인 2026-09-07); 상판 중앙 배치 (사용자 지시 2026-09-07)"}
   },
   "ports": {
     "common_inlet": {
