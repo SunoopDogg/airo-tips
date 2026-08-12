@@ -42,11 +42,11 @@ LAYER_STYLES: dict[str, tuple[str, int, float, str | None]] = {
 
 def load_params(path: Path) -> dict[str, Any]:
     data = json.loads(path.read_text(encoding="utf-8"))
-    required = ("meta", "pack", "clearance", "enclosure", "floor_frame", "electrical_envelope", "ports", "sensor_points")
+    required = ("meta", "pack", "clearance", "enclosure", "floor_frame", "electrical_envelope", "ports", "sensor_layout", "sensor_points")
     missing = [key for key in required if key not in data]
     if missing:
         raise ValueError(f"missing parameter sections: {', '.join(missing)}")
-    for section in ("pack", "clearance", "enclosure", "floor_frame", "electrical_envelope", "ports", "sensor_points"):
+    for section in ("pack", "clearance", "enclosure", "floor_frame", "electrical_envelope", "ports", "sensor_layout", "sensor_points"):
         for name, item in data[section].items():
             if not isinstance(item, dict) or not {"value", "unit", "status", "source"} <= item.keys():
                 raise ValueError(f"invalid parameter record: {section}.{name}")
@@ -203,10 +203,10 @@ def add_marker(d: Drawing, x: float, y: float, label: str, view_box: tuple[float
     dogleg_leader(d, x, y, label, view_box, route, outside_offset, diagonal_sign)
 
 
-def add_sen55(d: Drawing, x: float, y: float, label: str, view_box: tuple[float, float, float, float], outside_offset: float, diagonal_sign: int = 1) -> None:
+def add_sen55(d: Drawing, x: float, y: float, label: str, view_box: tuple[float, float, float, float], outside_offset: float, diagonal_sign: int = 1, route: str = "top") -> None:
     width, height = 52.3, 43.3
     d.rect(x - width / 2, y - height / 2, width, height, "SEN55")
-    dogleg_leader(d, x, y + height / 2, label, view_box, "top", outside_offset, diagonal_sign)
+    dogleg_leader(d, x, y + height / 2, label, view_box, route, outside_offset, diagonal_sign)
 
 
 def add_port(d: Drawing, x: float, y: float, label: str, view_box: tuple[float, float, float, float], route: str = "right", outside_offset: float = 35.0, diagonal_sign: int = 1) -> tuple[float, float, float, float]:
@@ -242,12 +242,20 @@ def estimate_text_width(value: str, height: float) -> float:
     return units * height
 
 
+def sensor_triangle(m: dict[str, float], radius: float) -> list[tuple[str, float, float]]:
+    cx, cy = m["w"] / 2, m["d"] / 2
+    dx, dy = radius * math.cos(math.radians(30)), radius * math.sin(math.radians(30))
+    return [("후방", cx, cy + radius), ("전방좌", cx - dx, cy - dy), ("전방우", cx + dx, cy - dy)]
+
+
 def build(p: dict[str, Any]) -> tuple[Drawing, dict[str, float]]:
     m, d = dimensions(p), Drawing()
     wall = m["wall"]
     m.update({"outer_w": m["w"] + 2 * wall, "outer_d": m["d"] + 2 * wall, "outer_h": m["h"] + 2 * wall})
     fx, fy, gap = 450.0, 2100.0, 700.0
     sx, sy, px, py = fx + m["w"] + gap, fy, fx, 250.0
+    radius = number(p["sensor_layout"]["circumradius"], "sensor_layout.circumradius")
+    sensors = sensor_triangle(m, radius)
     electrical = p["electrical_envelope"]
     ew = number(electrical["width"], "electrical_envelope.width")
     ed = number(electrical["depth"], "electrical_envelope.depth")
@@ -272,9 +280,9 @@ def build(p: dict[str, Any]) -> tuple[Drawing, dict[str, float]]:
     efy = fy + m["h"] + wall
     d.rect(efx, efy, ew, eh, "ELECTRICAL_ENVELOPE")
     electrical_front_view = (front_view[0], front_view[1], front_view[2], efy + eh)
-    add_leader_label(d, efx + ew, efy + eh, "전장 설치 공간(제안) 챔버 외부", electrical_front_view, "right", 85, 1)
-    d.dim_h(efx, efx + ew, efy + eh + 100, f"전장 폭 {ew:.0f} (제안)")
-    d.dim_v(efy, efy + eh, efx - 80, f"전장 높이 {eh:.0f} (제안)", "left")
+    add_leader_label(d, efx + ew, efy + eh, "전장 설치 공간 (챔버 외부)", electrical_front_view, "right", 85, 1)
+    d.dim_h(efx, efx + ew, efy + eh + 100, f"전장 폭 {ew:.0f}")
+    d.dim_v(efy, efy + eh, efx - 300, f"전장 높이 {eh:.0f}", "left")
     d.regions["chamber_front"] = (fx, fy, fx + m["w"], fy + m["h"])
     pack_x, pack_y = fx + m["left"], fy + m["bottom"]
     d.regions["frame_front"] = frame(fx, fy, m["w"], "frame_front")
@@ -303,15 +311,15 @@ def build(p: dict[str, Any]) -> tuple[Drawing, dict[str, float]]:
     d.line(handle_x, handle_y - handle_length / 2, handle_x, handle_y + handle_length / 2, "HANDLE")
     d.line(handle_x - handle_half_width, handle_y - handle_length / 2, handle_x + handle_half_width, handle_y - handle_length / 2, "HANDLE")
     d.line(handle_x - handle_half_width, handle_y + handle_length / 2, handle_x + handle_half_width, handle_y + handle_length / 2, "HANDLE")
-    d.text(fx, fy + m["h"] + 150, "정면 (도어측)", 30)
+    d.text(fx, fy + m["h"] + 450, "정면 (도어측)", 30)
     add_leader_label(d, pack_x + m["pack_w"], pack_y + m["stack_h"], "시료 팩 1", front_view, "right", 35, 1)
     add_leader_label(d, fx + m["w"], fy + m["bottom"], f"받침 프레임 H{m['bottom']:.0f}", front_view, "right", 35, -1)
     add_leader_label(d, door_x + door_w, fy + door_h, f"도어 개구 {door_w:.0f} x {door_h:.0f}", front_view, "right", 85, 1)
     add_leader_label(d, win_x, win_y + win_h, f"관찰창 {win_w:.0f} x {win_h:.0f}", front_view, "left", 135, -1)
     add_leader_label(d, handle_x, handle_y, f"{handle_type} L{handle_length:.0f}", front_view, "right", 35, 1)
-    for i, (ratio, label) in enumerate(((.22, "SEN55 상부1"), (.50, "SEN55 상부2"), (.78, "SEN55 상부3"))):
-        marker_y = fy + m["h"] - 180 + i * 50
-        add_sen55(d, fx + m["w"] * ratio, marker_y, label, front_view, 35 + i * 50, -1 if i < 2 else 1)
+    # 천장면 위치의 기호: 마커 상단을 천장선에 맞추며 실제 이격 거리를 뜻하지 않는다.
+    for (label, x, y), (route, offset, sign) in zip(sensors, (("top", 350, -1), ("left", 35, 1), ("right", 35, 1))):
+        add_sen55(d, fx + x, fy + m["h"] - 43.3 / 2, f"SEN55 {label}", front_view, offset, sign, route)
     d.dim_h(handle_x, door_x + door_w, fy - 240, f"핸들 오프셋 {handle_offset:.0f}")
     d.dim_v(handle_y - handle_length / 2, handle_y + handle_length / 2, front_view[0] - 750, f"핸들 길이 {handle_length:.0f}", "left")
     d.dim_h(fx - wall, fx + m["w"] + wall, fy - 185, f"외형 폭 {m['outer_w']:.0f} (W_out)")
@@ -330,7 +338,7 @@ def build(p: dict[str, Any]) -> tuple[Drawing, dict[str, float]]:
     esx = sx - wall + (m["outer_d"] - ed) / 2
     esy = sy + m["h"] + wall
     d.rect(esx, esy, ed, eh, "ELECTRICAL_ENVELOPE")
-    d.dim_h(esx, esx + ed, esy + eh + 100, f"전장 깊이 {ed:.0f} (제안)")
+    d.dim_h(esx, esx + ed, esy + eh + 100, f"전장 깊이 {ed:.0f}")
     spx, spy = sx + m["front"], sy + m["bottom"]
     cable_y = sy + m["bottom"]
     d.regions["frame_side"] = frame(sx, sy, m["d"], "frame_side")
@@ -352,6 +360,10 @@ def build(p: dict[str, Any]) -> tuple[Drawing, dict[str, float]]:
     d.rect(px, py, m["w"], m["d"], "EFFECTIVE")
     d.rect(px - wall + (m["outer_w"] - ew) / 2, py - wall + (m["outer_d"] - ed) / 2, ew, ed, "ELECTRICAL_ENVELOPE")
     d.rect(px + m["left"], py + m["front"], m["pack_w"], m["pack_d"], "PACK")
+    for (label, x, y), (offset, sign) in zip(sensors, ((35, 1), (85, -1), (135, 1))):
+        add_sen55(d, px + x, py + y, f"SEN55 {label}", plan_view, offset, sign)
+    side = radius * math.sqrt(3)
+    d.dim_h(px + sensors[1][1], px + sensors[2][1], py - 300, f"SEN55 정삼각형 한 변 {side:.0f}")
     d.text(px, py + m["d"] + 130, "평면", 30)
     d.dim_h(px - wall, px + m["w"] + wall, py - 185, f"외형 폭 {m['outer_w']:.0f} (W_out)")
     d.dim_h(px + m["left"], px + m["left"] + m["pack_w"], py - 130, f"팩 폭 {m['pack_w']:.0f}")
@@ -364,7 +376,7 @@ def build(p: dict[str, Any]) -> tuple[Drawing, dict[str, float]]:
 
     # 표제란과 주기는 각각 독립 앵커에서 위로 자란다.
     tbx, tby, tbw, tbh = sx, 240.0, m["d"], 190.0
-    notes = ["주기", f"1. 재질 {p['enclosure']['material']['value']}, 판 두께 {wall:g} mm, 밀폐 등급 {p['enclosure']['sealing_grade']['value']}.", f"2. 내부 유효 {m['w']:.0f} x {m['d']:.0f} x {m['h']:.0f} mm; 외형 {m['outer_w']:.0f} x {m['outer_d']:.0f} x {m['outer_h']:.0f} mm.", "3. 센서 지점 3개소(포트 아님): 상부 SEN55 3대.", "4. SEN55 상세는 도면 J3-SN-001 참조. 외형 방향은 흡입구 위치 미상으로 단정하지 않는다.", "5. SEN55 금속 실드는 내부 GND와 연결된다. 챔버 직결 금지, 절연 브래킷 또는 등전위 설치.", "6. SEN55의 I2C 권장 배선 길이 10 cm 미만은 전장이 챔버 외부인 이 배치에서 준수 불가. 차폐 케이블 사용과 P82B715 버스 익스텐더 채널별 1쌍 삽입을 검토 중이며 둘 다 미확정. 배선 길이도 미정.", "7. 포트 구경은 종속값이다: 주입·배기는 장비 토출구·유량·압력손실·누설 시험, 케이블은 선정 케이블 외경(관통판 + 외경별 글랜드, 예비구 막음).", "8. 배수 포트를 두지 않는다. 관통부는 공용 주입 1구, 배기 1구, 케이블 관통 포트뿐이다. 잔류액은 퍼지·안전 확인 후 도어를 열어 회수한다.", "9. 전장(ESP32-S3-WROOM-1 N16R8 1대, PCA9548A 1개)은 챔버 상판 중앙 외부에 둔다. 챔버 내부에는 SEN55 3대만 노출한다. 표시한 300 x 150 x 120 mm 는 제안값(사람 미승인)이며 실제 전장함은 미선정이다. 상판 부착 방식과 배선 경로는 미정.", "10. SEN55 3대는 ESP32-S3의 I2C 1버스에서 PCA9548A(주소 0x70, A0=A1=A2=GND, RESET은 VCC 풀업)를 거쳐 채널 0~2에 한 대씩 연결한다. 전원 5 V와 통신은 USB 1개로 통합한다."]
+    notes = ["주기", f"1. 재질 {p['enclosure']['material']['value']}, 판 두께 {wall:g} mm, 밀폐 등급 {p['enclosure']['sealing_grade']['value']}.", f"2. 내부 유효 {m['w']:.0f} x {m['d']:.0f} x {m['h']:.0f} mm; 외형 {m['outer_w']:.0f} x {m['outer_d']:.0f} x {m['outer_h']:.0f} mm.", "3. 센서 지점 3개소(포트 아님): 천장면 SEN55 3대. 내부 평면 중심의 외접원 R250 정삼각형 꼭짓점이며 꼭짓점 하나가 후방을 향한다. 천장면에서 띄우는 거리와 브래킷은 미정.", "4. SEN55 상세는 도면 J3-SN-001 참조. 외형 방향은 흡입구 위치 미상으로 단정하지 않는다.", "5. SEN55 금속 실드는 내부 GND와 연결된다. 챔버 직결 금지, 절연 브래킷 또는 등전위 설치.", "6. SEN55의 I2C 권장 배선 길이 10 cm 미만은 전장이 챔버 외부인 이 배치에서 준수 불가. 차폐 케이블 사용과 P82B715 버스 익스텐더 채널별 1쌍 삽입을 검토 중이며 둘 다 미확정. 배선 길이도 미정.", "7. 포트 구경은 종속값이다: 주입·배기는 장비 토출구·유량·압력손실·누설 시험, 케이블은 선정 케이블 외경(관통판 + 외경별 글랜드, 예비구 막음).", "8. 배수 포트를 두지 않는다. 관통부는 공용 주입 1구, 배기 1구, 케이블 관통 포트뿐이다. 잔류액은 퍼지·안전 확인 후 도어를 열어 회수한다.", "9. 전장(ESP32-S3-WROOM-1 N16R8 1대, PCA9548A 1개)은 챔버 상판 중앙 외부에 둔다. 챔버 내부에는 SEN55 3대만 노출한다. 설치 공간 300 x 150 x 120 mm. 상판 부착 방식과 배선 경로는 미정.", "10. SEN55 3대는 ESP32-S3의 I2C 1버스에서 PCA9548A(주소 0x70, A0=A1=A2=GND, RESET은 VCC 풀업)를 거쳐 채널 0~2에 한 대씩 연결한다. 전원 5 V와 통신은 USB 1개로 통합한다."]
     def text_block(name: str, x: float, bottom: float, lines: list[str]) -> None:
         spacing = 42.0
         top = bottom + (len(lines) - 1) * spacing + 30
@@ -640,7 +652,7 @@ def assert_electrical_envelope_is_outside(drawing, p, m) -> int:
         assert box[1] >= outline[3], f"전장 설치 공간이 챔버 외형 상면 아래로 내려온다: view={view_index}"
         for layer in ("PACK", "SEN55", "EFFECTIVE", "OUTLINE"):
             rects = layer_rects(drawing, layer)
-            # PACK·EFFECTIVE·OUTLINE은 정면·측면·평면 순서, SEN55는 정면에만 표시한다.
+            # PACK·EFFECTIVE·OUTLINE은 정면·측면·평면 순서. SEN55는 정면 비교 시 평면 마커도 포함해 검사한다.
             targets = rects if layer == "SEN55" and view_index == 0 else ([] if layer == "SEN55" else [rects[view_index]])
             for other in targets:
                 assert_boxes_do_not_overlap(box, other)
@@ -650,6 +662,23 @@ def assert_electrical_envelope_is_outside(drawing, p, m) -> int:
     assert math.isclose(plan[0] + plan[2], outline[0] + outline[2], rel_tol=0, abs_tol=1e-9), "평면 전장 공간의 가로 중심이 외형 중심과 다르다"
     assert math.isclose(plan[1] + plan[3], outline[1] + outline[3], rel_tol=0, abs_tol=1e-9), "평면 전장 공간의 세로 중심이 외형 중심과 다르다"
     return checked
+
+
+def assert_sensor_triangle_is_equilateral(drawing, p, m) -> int:
+    """검사 19: 평면 정삼각형·중심·내부 위치와 정면 동일 높이."""
+    effective = layer_rects(drawing, "EFFECTIVE")
+    front, plan = effective[0], effective[2]
+    centers = [((box[0] + box[2]) / 2, (box[1] + box[3]) / 2) for box in layer_rects(drawing, "SEN55")]
+    front_centers = [(x, y) for x, y in centers if front[1] <= y <= front[3]]
+    plan_centers = [(x, y) for x, y in centers if plan[1] <= y <= plan[3]]
+    assert len(front_centers) == len(plan_centers) == 3, "정면·평면 각각 SEN55 중심이 3개여야 한다"
+    sides = [math.dist(plan_centers[i], plan_centers[(i + 1) % 3]) for i in range(3)]
+    assert sides[0] > 0 and all(math.isclose(side, sides[0], rel_tol=0, abs_tol=1e-6) for side in sides), "SEN55 세 변이 정삼각형을 이루지 않는다"
+    cx, cy = sum(x for x, y in plan_centers) / 3, sum(y for x, y in plan_centers) / 3
+    assert math.isclose(cx, (plan[0] + plan[2]) / 2, rel_tol=0, abs_tol=1e-6) and math.isclose(cy, (plan[1] + plan[3]) / 2, rel_tol=0, abs_tol=1e-6), "센서 정삼각형 중심이 내부 평면 중심과 다르다"
+    assert all(plan[0] <= x <= plan[2] and plan[1] <= y <= plan[3] for x, y in plan_centers), "센서 중심이 내부 유효 평면 밖에 있다"
+    assert all(math.isclose(y, front_centers[0][1], rel_tol=0, abs_tol=1e-6) for x, y in front_centers), "정면 센서 중심 높이가 서로 다르다"
+    return len(sides)
 
 
 def validate_svg(path: Path) -> None:
@@ -717,10 +746,12 @@ def main() -> None:
     assert m["outer_w"] - m["w"] == 2 * m["wall"] and m["outer_d"] - m["d"] == 2 * m["wall"] and m["outer_h"] - m["h"] == 2 * m["wall"]
     print("Outline validation OK: 외형선은 내부 유효선에서 판 두께만큼 정확히 오프셋")
     sen55_lines = [args for kind, args in drawing.entities if kind == "LINE" and args[-1] == "SEN55"]
-    assert len(sen55_lines) % 4 == 0 and len(sen55_lines) // 4 == len(p["sensor_points"])
-    print(f"Sensor marker validation OK: SEN55 레이어 사각형 {len(sen55_lines) // 4}개가 sensor_points {len(p['sensor_points'])}개와 일치")
+    assert len(sen55_lines) % 4 == 0 and len(sen55_lines) // 4 == 2 * len(p["sensor_points"])
+    print(f"Sensor marker validation OK: SEN55 레이어 사각형 {len(sen55_lines) // 4}개가 정면·평면 두 뷰의 sensor_points {len(p['sensor_points'])}개씩과 일치")
     checked = assert_electrical_envelope_is_outside(drawing, p, m)
     print(f"Electrical envelope validation OK: 정면·측면 외형 상면 이상, {checked}개 도형 쌍 비중첩; 평면 외형 내 포함·중심 일치")
+    triangle_sides = assert_sensor_triangle_is_equilateral(drawing, p, m)
+    print(f"Sensor triangle validation OK: 평면 {triangle_sides}변 동일·내부 중심 일치·유효 범위 내, 정면 중심 높이 동일")
     assert_text_boxes_do_not_overlap(drawing)
     print(f"Text/geometry validation OK: {len(drawing.text_boxes)} label boxes do not overlap text, LINE, or CIRCLE")
     assert_leaders_do_not_obscure_geometry(drawing)

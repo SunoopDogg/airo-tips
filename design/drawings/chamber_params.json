@@ -2,7 +2,7 @@
   "meta": {
     "drawing_title": "지표 3 ESS 운용환경 모의 챔버 3면도",
     "drawing_number": "J3-CH-001",
-    "revision": "K",
+    "revision": "L",
     "date": "2026-09-07",
     "scale": "NTS (치수값 mm)",
     "unit": "mm"
@@ -37,9 +37,9 @@
     "height": {"value": 100, "unit": "mm", "status": "fixed", "source": "2026-09-02 사람 결정; 설계서 6.1 받침 프레임; 2026-09-03 집수 근거 제거"}
   },
   "electrical_envelope": {
-    "width": {"value": 300, "unit": "mm", "status": "proposed", "source": "REV I 챔버 내부 제안값을 챔버 외부 배치에 재사용 (사용자 지시 2026-09-07); 실제 전장함 규격 미선정이므로 사람 미승인"},
-    "depth": {"value": 150, "unit": "mm", "status": "proposed", "source": "REV I 챔버 내부 제안값을 챔버 외부 배치에 재사용 (사용자 지시 2026-09-07); 실제 전장함 규격 미선정이므로 사람 미승인"},
-    "height": {"value": 120, "unit": "mm", "status": "proposed", "source": "REV I 챔버 내부 제안값을 챔버 외부 배치에 재사용 (사용자 지시 2026-09-07); 실제 전장함 규격 미선정이므로 사람 미승인"},
+    "width": {"value": 300, "unit": "mm", "status": "fixed", "source": "REV I 챔버 내부 제안값을 챔버 외부 배치에 재사용 (사용자 지시 2026-09-07); 사용자 승인 2026-09-07 로 확정. 실제 전장함은 미선정이므로 이 공간에 들어가는 기기 선정은 별건이다"},
+    "depth": {"value": 150, "unit": "mm", "status": "fixed", "source": "REV I 챔버 내부 제안값을 챔버 외부 배치에 재사용 (사용자 지시 2026-09-07); 사용자 승인 2026-09-07 로 확정. 실제 전장함은 미선정이므로 이 공간에 들어가는 기기 선정은 별건이다"},
+    "height": {"value": 120, "unit": "mm", "status": "fixed", "source": "REV I 챔버 내부 제안값을 챔버 외부 배치에 재사용 (사용자 지시 2026-09-07); 사용자 승인 2026-09-07 로 확정. 실제 전장함은 미선정이므로 이 공간에 들어가는 기기 선정은 별건이다"},
     "zone": {"value": "top-exterior-center", "unit": "zone", "status": "fixed", "source": "챔버 내부에는 SEN55만 두고 ESP32-S3-WROOM-1·PCA9548A 등 전장은 챔버 상단 외부에 둔다 (사용자 확인 2026-09-07); 상판 중앙 배치 (사용자 지시 2026-09-07)"}
   },
   "ports": {
@@ -61,9 +61,15 @@
     "exhaust_diameter": {"value": null, "unit": "mm", "status": "dependent", "depends_on": "장비 실제 토출구·요구 유량·압력손실·누설 시험 결과 (설계서 6.3)", "source": "설계서 6.3·6.4 가 수치 지정을 거부함; 2026-09-02 환원; 2026-09-03 명칭에서 퍼지 제거"},
     "cable_entry_diameter": {"value": null, "unit": "mm", "status": "dependent", "depends_on": "선정된 차폐 케이블의 외경. 관통판에 케이블 외경별 글랜드를 두고 예비구는 막는다 (설계서 6.4·BOM)", "source": "설계서 6.3·6.4 가 수치 지정을 거부함; 2026-09-02 환원"}
   },
+  "sensor_layout": {
+    "arrangement": {"value": "equilateral-triangle", "unit": "-", "status": "fixed", "source": "센서 3대를 고르게 정삼각형으로 배치 (사용자 지시 2026-09-07)"},
+    "plane": {"value": "ceiling", "unit": "-", "status": "fixed", "source": "세 점 모두 천장면 z=750 (사용자 지시 2026-09-07); 천장면에서 띄우는 거리는 미정"},
+    "circumradius": {"value": 250, "unit": "mm", "status": "fixed", "source": "사용자 지시 2026-09-07; 내부 평면 중심 (375, 545) 기준. 한 변 R*sqrt(3) 약 433 mm, 좌우 벽 여유 각 약 158 mm"},
+    "apex_direction": {"value": "rear", "unit": "-", "status": "fixed", "source": "사용자 지시 2026-09-07; 깊이 1090 이 폭 750 보다 길어 꼭짓점을 긴 쪽으로 둔다"}
+  },
   "sensor_points": {
-    "upper_left": {"value": "upper-left", "unit": "zone", "status": "fixed", "source": "[[SEN55]]; 2026-09-02 사람 결정"},
-    "upper_center": {"value": "upper-center", "unit": "zone", "status": "fixed", "source": "[[SEN55]]; 2026-09-02 사람 결정"},
-    "upper_right": {"value": "upper-right", "unit": "zone", "status": "fixed", "source": "[[SEN55]]; 2026-09-02 사람 결정"}
+    "ceiling_rear": {"value": "ceiling-triangle-rear", "unit": "zone", "status": "fixed", "source": "[[SEN55]]; 천장면 정삼각형 배치 (사용자 지시 2026-09-07)"},
+    "ceiling_front_left": {"value": "ceiling-triangle-front-left", "unit": "zone", "status": "fixed", "source": "[[SEN55]]; 천장면 정삼각형 배치 (사용자 지시 2026-09-07)"},
+    "ceiling_front_right": {"value": "ceiling-triangle-front-right", "unit": "zone", "status": "fixed", "source": "[[SEN55]]; 천장면 정삼각형 배치 (사용자 지시 2026-09-07)"}
   }
 }
