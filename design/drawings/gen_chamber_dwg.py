@@ -374,20 +374,9 @@ def build(p: dict[str, Any]) -> tuple[Drawing, dict[str, float]]:
     d.line(handle_plan_x + 12, plan_view[1], handle_plan_x + 12, plan_view[1] - 25, "HANDLE")
     d.line(handle_plan_x - 12, plan_view[1] - 25, handle_plan_x + 12, plan_view[1] - 25, "HANDLE")
 
-    # 표제란과 주기는 각각 독립 앵커에서 위로 자란다.
+    # 표제란은 독립 앵커에 배치한다.
     tbx, tby, tbw, tbh = sx, 240.0, m["d"], 190.0
-    notes = ["주기", f"1. 재질 {p['enclosure']['material']['value']}, 판 두께 {wall:g} mm, 밀폐 등급 {p['enclosure']['sealing_grade']['value']}.", f"2. 내부 유효 {m['w']:.0f} x {m['d']:.0f} x {m['h']:.0f} mm; 외형 {m['outer_w']:.0f} x {m['outer_d']:.0f} x {m['outer_h']:.0f} mm.", "3. 센서 지점 3개소(포트 아님): 천장면 SEN55 3대. 내부 평면 중심의 외접원 R250 정삼각형 꼭짓점이며 꼭짓점 하나가 후방을 향한다. 천장면에서 띄우는 거리와 브래킷은 미정.", "4. SEN55 상세는 도면 J3-SN-001 참조. 외형 방향은 흡입구 위치 미상으로 단정하지 않는다.", "5. SEN55 금속 실드는 내부 GND와 연결된다. 챔버 직결 금지, 절연 브래킷 또는 등전위 설치.", "6. SEN55의 I2C 권장 배선 길이 10 cm 미만은 전장이 챔버 외부인 이 배치에서 준수 불가. 차폐 케이블 사용과 P82B715 버스 익스텐더 채널별 1쌍 삽입을 검토 중이며 둘 다 미확정. 배선 길이도 미정.", "7. 포트 구경은 종속값이다: 주입·배기는 장비 토출구·유량·압력손실·누설 시험, 케이블은 선정 케이블 외경(관통판 + 외경별 글랜드, 예비구 막음).", "8. 배수 포트를 두지 않는다. 관통부는 공용 주입 1구, 배기 1구, 케이블 관통 포트뿐이다. 잔류액은 퍼지·안전 확인 후 도어를 열어 회수한다.", "9. 전장(ESP32-S3-WROOM-1 N16R8 1대, PCA9548A 1개)은 챔버 상판 중앙 외부에 둔다. 챔버 내부에는 SEN55 3대만 노출한다. 설치 공간 300 x 150 x 120 mm. 상판 부착 방식과 배선 경로는 미정.", "10. SEN55 3대는 ESP32-S3의 I2C 1버스에서 PCA9548A(주소 0x70, A0=A1=A2=GND, RESET은 VCC 풀업)를 거쳐 채널 0~2에 한 대씩 연결한다. 전원 5 V와 통신은 USB 1개로 통합한다."]
-    def text_block(name: str, x: float, bottom: float, lines: list[str]) -> None:
-        spacing = 42.0
-        top = bottom + (len(lines) - 1) * spacing + 30
-        for i, line in enumerate(lines):
-            d.text(x, top - 30 - i * spacing, line, 30 if i == 0 else 20, "NOTE")
-        width = max(estimate_text_width(line, 30 if i == 0 else 20) for i, line in enumerate(lines))
-        d.regions[name] = (x, bottom, x + width, top)
-    text_block("notes", sx, tby + tbh + 55, notes)
     d.regions["title"] = (tbx, tby, tbx + tbw, tby + tbh)
-    for first, second in (("notes", "title"),):
-        assert_boxes_do_not_overlap(d.regions[first], d.regions[second])
     d.rect(tbx, tby, tbw, tbh, "TITLE")
     d.line(tbx, tby + 70, tbx + tbw, tby + 70, "TITLE")
     d.line(tbx, tby + 130, tbx + tbw, tby + 130, "TITLE")
@@ -641,7 +630,7 @@ def layer_rects(drawing, layer: str) -> list:
 
 
 def assert_electrical_envelope_is_outside(drawing, p, m) -> int:
-    """검사 18: 정면·측면 외부 배치와 비중첩, 평면 외형 내 포함·중심 일치."""
+    """검사 17: 정면·측면 외부 배치와 비중첩, 평면 외형 내 포함·중심 일치."""
     electrical = layer_rects(drawing, "ELECTRICAL_ENVELOPE")
     outlines = layer_rects(drawing, "OUTLINE")
     assert len(electrical) == 3, "전장 설치 공간은 정면·측면·평면에 정확히 3개여야 한다"
@@ -665,7 +654,7 @@ def assert_electrical_envelope_is_outside(drawing, p, m) -> int:
 
 
 def assert_sensor_triangle_is_equilateral(drawing, p, m) -> int:
-    """검사 19: 평면 정삼각형·중심·내부 위치와 정면 동일 높이."""
+    """검사 18: 평면 정삼각형·중심·내부 위치와 정면 동일 높이."""
     effective = layer_rects(drawing, "EFFECTIVE")
     front, plan = effective[0], effective[2]
     centers = [((box[0] + box[2]) / 2, (box[1] + box[3]) / 2) for box in layer_rects(drawing, "SEN55")]
@@ -724,9 +713,6 @@ def main() -> None:
         for item in dependent:
             print(f"- {item}")
     drawing, m = build(p)
-    for first, second in (("notes", "title"),):
-        assert_boxes_do_not_overlap(drawing.regions[first], drawing.regions[second])
-    print("Layout validation OK: 주기/표제란 2개 영역은 서로 겹치지 않음")
     assert_box_contains(drawing.regions["door"], drawing.regions["pack_front"])
     chamber, door = drawing.regions["chamber_front"], drawing.regions["door"]
     assert chamber[0] <= door[0] and chamber[1] <= door[1] and chamber[2] >= door[2] and chamber[3] >= door[3]

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-642.0 -3510.0 4552.999999999998 3752.0" width="4552.999999999998" height="3752.0">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-642.0 -3510.0 4091.0 3752.0" width="4091.0" height="3752.0">
 <rect x="-10000" y="-10000" width="20000" height="20000" fill="white"/>
 <g fill="none" stroke="#111" stroke-width="3" vector-effect="non-scaling-stroke">
 <line x1="447.0" y1="-2097.0" x2="1203.0" y2="-2097.0" stroke="#444" stroke-width="2.5"/>
@@ -263,18 +263,7 @@
 <text x="775.5" y="-136.0" font-size="22" fill="#7a3e00">팩 폭 450</text>
 <text x="-322.2999999999999" y="-795.0" font-size="22" fill="#7a3e00">외형 깊이 1096 (D_out)</text>
 <text x="223.0" y="-795.0" font-size="22" fill="#7a3e00">팩 깊이 790</text>
-<text x="1900.0" y="-905.0" font-size="30" fill="#111">주기</text>
-<text x="1900.0" y="-863.0" font-size="20" fill="#111">1. 재질 SUS304, 판 두께 3 mm, 밀폐 등급 IP55.</text>
-<text x="1900.0" y="-821.0" font-size="20" fill="#111">2. 내부 유효 750 x 1090 x 750 mm; 외형 756 x 1096 x 756 mm.</text>
-<text x="1900.0" y="-779.0" font-size="20" fill="#111">3. 센서 지점 3개소(포트 아님): 천장면 SEN55 3대. 내부 평면 중심의 외접원 R250 정삼각형 꼭짓점이며 꼭짓점 하나가 후방을 향한다. 천장면에서 띄우는 거리와 브래킷은 미정.</text>
-<text x="1900.0" y="-737.0" font-size="20" fill="#111">4. SEN55 상세는 도면 J3-SN-001 참조. 외형 방향은 흡입구 위치 미상으로 단정하지 않는다.</text>
-<text x="1900.0" y="-695.0" font-size="20" fill="#111">5. SEN55 금속 실드는 내부 GND와 연결된다. 챔버 직결 금지, 절연 브래킷 또는 등전위 설치.</text>
-<text x="1900.0" y="-653.0" font-size="20" fill="#111">6. SEN55의 I2C 권장 배선 길이 10 cm 미만은 전장이 챔버 외부인 이 배치에서 준수 불가. 차폐 케이블 사용과 P82B715 버스 익스텐더 채널별 1쌍 삽입을 검토 중이며 둘 다 미확정. 배선 길이도 미정.</text>
-<text x="1900.0" y="-611.0" font-size="20" fill="#111">7. 포트 구경은 종속값이다: 주입·배기는 장비 토출구·유량·압력손실·누설 시험, 케이블은 선정 케이블 외경(관통판 + 외경별 글랜드, 예비구 막음).</text>
-<text x="1900.0" y="-569.0" font-size="20" fill="#111">8. 배수 포트를 두지 않는다. 관통부는 공용 주입 1구, 배기 1구, 케이블 관통 포트뿐이다. 잔류액은 퍼지·안전 확인 후 도어를 열어 회수한다.</text>
-<text x="1900.0" y="-527.0" font-size="20" fill="#111">9. 전장(ESP32-S3-WROOM-1 N16R8 1대, PCA9548A 1개)은 챔버 상판 중앙 외부에 둔다. 챔버 내부에는 SEN55 3대만 노출한다. 설치 공간 300 x 150 x 120 mm. 상판 부착 방식과 배선 경로는 미정.</text>
-<text x="1900.0" y="-485.0" font-size="20" fill="#111">10. SEN55 3대는 ESP32-S3의 I2C 1버스에서 PCA9548A(주소 0x70, A0=A1=A2=GND, RESET은 VCC 풀업)를 거쳐 채널 0~2에 한 대씩 연결한다. 전원 5 V와 통신은 USB 1개로 통합한다.</text>
 <text x="1915.0" y="-385.0" font-size="25" fill="#111">지표 3 ESS 운용환경 모의 챔버 3면도</text>
-<text x="1915.0" y="-328.0" font-size="22" fill="#111">도면번호: J3-CH-001  REV: L</text>
+<text x="1915.0" y="-328.0" font-size="22" fill="#111">도면번호: J3-CH-001  REV: M</text>
 <text x="1915.0" y="-265.0" font-size="22" fill="#111">축척: NTS (치수값 mm)  단위: mm  작성일: 2026-09-07</text>
 </g></svg>
