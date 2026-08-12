@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""단일 chamber_params.json에서 ESS 모의 챔버 OBJ/MTL/STL을 생성한다."""
+"""chamber_params.json과 sen55_params.json에서 ESS 모의 챔버 OBJ/MTL/STL을 생성한다."""
 
 from __future__ import annotations
 
@@ -14,13 +14,12 @@ from typing import Any
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_PARAMS = HERE.parent / "drawings" / "chamber_params.json"
+DEFAULT_SEN55_PARAMS = HERE.parent / "drawings" / "sen55_params.json"
 OBJ_PATH = HERE / "chamber.obj"
 MTL_PATH = HERE / "chamber.mtl"
 STL_PATH = HERE / "chamber.stl"
 
 # 아래 값은 치수가 아니라 개념 마커의 상대 배치/표현 비율이다. 실제 치수는 JSON에서만 읽는다.
-UPPER_SENSOR_FROM_TOP_RATIO = 0.35
-UPPER_SENSOR_X_RATIOS = (0.22, 0.50, 0.78)
 MID_LOWER_RATIO = 0.40
 UPPER_RATIO = 0.82
 CABLE_Y_RATIO = 0.30
@@ -50,7 +49,7 @@ MATERIALS = {
 
 def load_params(path: Path) -> dict[str, Any]:
     data = json.loads(path.read_text(encoding="utf-8"))
-    required = ("meta", "pack", "clearance", "enclosure", "floor_frame", "ports", "sensor_points")
+    required = ("meta", "pack", "clearance", "enclosure", "floor_frame", "electrical_envelope", "ports", "sensor_layout", "sensor_points")
     missing = [key for key in required if key not in data]
     if missing:
         raise ValueError(f"파라미터 섹션 누락: {', '.join(missing)}")
@@ -58,8 +57,15 @@ def load_params(path: Path) -> dict[str, Any]:
         for name, item in data[section].items():
             if not isinstance(item, dict) or not {"value", "unit", "status", "source"} <= item.keys():
                 raise ValueError(f"잘못된 파라미터 레코드: {section}.{name}")
-            if item["status"] not in ("fixed", "tbc", "dependent"):
+            if item["status"] not in {"fixed", "dependent", "proposed"}:
                 raise ValueError(f"잘못된 상태: {section}.{name}")
+            if item["status"] == "fixed" and item["value"] is None:
+                raise ValueError(f"fixed value cannot be null: {section}.{name}")
+            if item["status"] == "dependent":
+                if item["value"] is not None:
+                    raise ValueError(f"dependent value must be null: {section}.{name}")
+                if not isinstance(item.get("depends_on"), str) or not item["depends_on"].strip():
+                    raise ValueError(f"dependent value requires depends_on: {section}.{name}")
     for name in ("wall_thickness", "material", "sealing_grade", "door_opening_width", "door_opening_height",
                  "observation_window_width", "observation_window_height", "door_handle_length", "door_handle_offset"):
         item = data["enclosure"][name]
@@ -77,6 +83,16 @@ def number(item: dict[str, Any], name: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ValueError(f"숫자 값 필요: {name}")
     return float(value)
+
+
+def load_sen55(path: Path) -> dict[str, float]:
+    module = json.loads(path.read_text(encoding="utf-8"))["module"]
+    dimensions = {}
+    for name in ("length", "width", "height"):
+        item = module[name]
+        assert item["status"] == "fixed" and item["value"] is not None, f"확정 전제 위반: SEN55.module.{name}"
+        dimensions[name] = number(item, f"SEN55.module.{name}")
+    return dimensions
 
 
 def dimensions(p: dict[str, Any]) -> dict[str, float]:
@@ -129,10 +145,9 @@ class Mesh:
         self.quad(group, material, (x1,y0,z0), (x1,y0,z1), (x1,y1,z1), (x1,y1,z0))
 
 
-def conceptual_layout(p: dict[str, Any], m: dict[str, float]) -> dict[str, Any]:
+def conceptual_layout(p: dict[str, Any], m: dict[str, float], sen55: dict[str, float]) -> dict[str, Any]:
     px0, py0, pz0 = m["left"], m["front"], m["bottom"]
     px1, py1, pz1 = px0 + m["pack_w"], py0 + m["pack_d"], pz0 + m["stack_h"]
-    upper_z = m["h"] - m["top"] * UPPER_SENSOR_FROM_TOP_RATIO
     enclosure = p["enclosure"]
     door_w = number(enclosure["door_opening_width"], "enclosure.door_opening_width")
     door_h = number(enclosure["door_opening_height"], "enclosure.door_opening_height")
@@ -150,12 +165,24 @@ def conceptual_layout(p: dict[str, Any], m: dict[str, float]) -> dict[str, Any]:
     # 마커 외곽과 인접 모서리 사이에 최소 마커 한 변(2 * marker_half)을 둔다.
     edge_center = marker_half * 3
     display_offset = scale * DISPLAY_OFFSET_RATIO
+    radius = number(p["sensor_layout"]["circumradius"], "sensor_layout.circumradius")
+    cx, cy = m["w"] / 2, m["d"] / 2
+    dx, dy = radius * math.cos(math.radians(30)), radius * math.sin(math.radians(30))
+    sensor_z = m["h"] - sen55["height"] / 2
     sensor_zones = {
-        "upper-left": (m["w"] * UPPER_SENSOR_X_RATIOS[0], m["d"] * 0.50, upper_z),
-        "upper-center": (m["w"] * UPPER_SENSOR_X_RATIOS[1], m["d"] * 0.50, upper_z),
-        "upper-right": (m["w"] * UPPER_SENSOR_X_RATIOS[2], m["d"] * 0.50, upper_z),
+        "ceiling-triangle-rear": (cx, cy + radius, sensor_z),
+        "ceiling-triangle-front-left": (cx - dx, cy - dy, sensor_z),
+        "ceiling-triangle-front-right": (cx + dx, cy - dy, sensor_z),
     }
     points = {name: sensor_zones[item["value"]] for name, item in p["sensor_points"].items()}
+    # 상면을 천장면에 맞춘 것은 표현용이며 실제 이격 거리와 브래킷은 미정이다.
+    z1 = m["h"]
+    z0 = z1 - sen55["height"]
+    sensor_boxes = {
+        name: (x - sen55["length"] / 2, y - sen55["width"] / 2, z0,
+               x + sen55["length"] / 2, y + sen55["width"] / 2, z1)
+        for name, (x, y, _) in points.items()
+    }
     port_zones = {
         "rear-mid-lower": ((m["w"] - display_offset, m["d"] - edge_center, m["h"] * MID_LOWER_RATIO), "yz", "inlet_dependent"),
         "front-upper-opposite": ((display_offset, edge_center, m["h"] * UPPER_RATIO), "yz", "exhaust_dependent"),
@@ -173,7 +200,7 @@ def conceptual_layout(p: dict[str, Any], m: dict[str, float]) -> dict[str, Any]:
         "pack": (px0, py0, pz0, px1, py1, pz1), "door": door, "window": window,
         "handle": (handle_x, handle_z - handle_length / 2, handle_z + handle_length / 2),
         "display_offset": display_offset, "marker_half": marker_half,
-        "ports": ports, "sensors": points,
+        "ports": ports, "sensors": points, "sensor_boxes": sensor_boxes, "sen55": sen55,
     }
 
 
@@ -187,21 +214,21 @@ def marker_quad(mesh: Mesh, group: str, material: str, center: tuple[float,float
         mesh.quad(group, material, (x-size,y-size,z), (x+size,y-size,z), (x+size,y+size,z), (x-size,y+size,z))
 
 
-def electrical_envelope(p: dict[str, Any]) -> tuple[float, float, float, float, float, float]:
-    """전장 설치 공간의 (x0, y0, z0, x1, y1, z1). 값은 status: proposed 이며 사람 미승인이다."""
+def electrical_envelope(p: dict[str, Any], m: dict[str, float]) -> tuple[float, float, float, float, float, float]:
+    """챔버 외부 상판 중앙 전장 설치 공간의 (x0, y0, z0, x1, y1, z1)."""
     e = p["electrical_envelope"]
-    x0 = number(e["left_offset"], "electrical_envelope.left_offset")
-    y0 = number(e["front_offset"], "electrical_envelope.front_offset")
-    z0 = number(e["bottom_offset"], "electrical_envelope.bottom_offset")
-    return (x0, y0, z0,
-            x0 + number(e["width"], "electrical_envelope.width"),
-            y0 + number(e["depth"], "electrical_envelope.depth"),
-            z0 + number(e["height"], "electrical_envelope.height"))
+    ew = number(e["width"], "electrical_envelope.width")
+    ed = number(e["depth"], "electrical_envelope.depth")
+    eh = number(e["height"], "electrical_envelope.height")
+    x0 = (m["w"] - ew) / 2
+    y0 = (m["d"] - ed) / 2
+    z0 = m["h"] + m["wall"]
+    return (x0, y0, z0, x0 + ew, y0 + ed, z0 + eh)
 
 
-def build(p: dict[str, Any]) -> tuple[Mesh, dict[str, float], dict[str, Any]]:
+def build(p: dict[str, Any], sen55: dict[str, float]) -> tuple[Mesh, dict[str, float], dict[str, Any]]:
     m = dimensions(p)
-    layout = conceptual_layout(p, m)
+    layout = conceptual_layout(p, m, sen55)
     mesh = Mesh()
     wall = m["wall"]
     mesh.box("outer_enclosure_shell", "outer_shell", (-wall,-wall,-wall), (m["w"]+wall,m["d"]+wall,m["h"]+wall))
@@ -213,9 +240,9 @@ def build(p: dict[str, Any]) -> tuple[Mesh, dict[str, float], dict[str, Any]]:
         lo = (x0, y0, z0 + index*m["pack_h"])
         hi = (x1, y1, lo[2] + m["pack_h"])
         mesh.box(f"pack_{index+1:02d}", "pack", lo, hi)
-    ex0,ey0,ez0,ex1,ey1,ez1 = electrical_envelope(p)
-    # 제안값이다. 함체 형상이 아니라 확보해야 할 설치 공간의 경계 상자다.
-    mesh.box("electrical_envelope_proposed", "electrical_envelope", (ex0,ey0,ez0), (ex1,ey1,ez1))
+    ex0,ey0,ez0,ex1,ey1,ez1 = electrical_envelope(p, m)
+    # 챔버 외부 상판 중앙의 설치 공간이며 함체 제작 형상이 아닌 경계 상자다.
+    mesh.box("electrical_envelope_exterior", "electrical_envelope", (ex0,ey0,ez0), (ex1,ey1,ez1))
     dx0,dz0,dx1,dz1 = layout["door"]
     offset = layout["display_offset"]
     mesh.quad("door_opening", "door", (dx0,offset,dz0),(dx1,offset,dz0),(dx1,offset,dz1),(dx0,offset,dz1))
@@ -229,10 +256,8 @@ def build(p: dict[str, Any]) -> tuple[Mesh, dict[str, float], dict[str, Any]]:
               (hx-handle_half_width,offset,hz1))
     for name, (point, plane, material) in layout["ports"].items():
         marker_quad(mesh, f"{name}_port_diameter_dependent", material, point, marker, plane)
-    for name, point in layout["sensors"].items():
-        s = marker * 0.55
-        x,y,z = point
-        mesh.face(f"sensor_{name}_concept", "sensor_concept", [(x-s,y,z),(x,y-s,z),(x+s,y,z),(x,y+s,z)])
+    for name, box in layout["sensor_boxes"].items():
+        mesh.box(f"sensor_{name}_concept", "sensor_concept", box[:3], box[3:])
     add_axes(mesh, m)
     return mesh, m, layout
 
@@ -299,7 +324,7 @@ def validate_geometry(p: dict[str,Any], m: dict[str,float], layout: dict[str,Any
     assert all(math.isclose(a,b) for a,b in zip(actual,expected))
     print("1 Pack containment OK: six clearances match chamber_params.json: " + ", ".join(f"{v:g}" for v in actual) + " mm")
     changed = copy.deepcopy(p); changed["pack"]["count"]["value"] = int(m["count"]) + 1
-    cm = dimensions(changed); cl = conceptual_layout(changed, cm)
+    cm = dimensions(changed); cl = conceptual_layout(changed, cm, layout["sen55"])
     assert cm["stack_h"] == m["stack_h"] + m["pack_h"] and cm["h"] == m["h"] + m["pack_h"]
     assert math.isclose(cm["h"]-cl["pack"][5], cm["top"])
     print(f"2 Pack-count recalculation OK: count {int(m['count'])} -> {int(cm['count'])}, stack H {m['stack_h']:g} -> {cm['stack_h']:g}, H_in {m['h']:g} -> {cm['h']:g} mm")
@@ -328,29 +353,38 @@ def validate_geometry(p: dict[str,Any], m: dict[str,float], layout: dict[str,Any
     print(f"4 Airflow/port placement OK: {len(port_points)} parameter-driven markers; wall offset {offset:.3f} mm; nearest-edge clearances inlet {inlet_rear_clearance:.3f}, exhaust {exhaust_front_clearance:.3f}, cable {cable_floor_clearance:.3f} mm >= marker side {marker_side:.3f} mm; cable bottom >= frame top {m['frame_h']:.3f} mm")
     sensors = list(layout["sensors"].values())
     assert all(0 < x < m["w"] and 0 < y < m["d"] and 0 < z < m["h"] for x,y,z in sensors)
-    distances = [math.dist(a,b) for i,a in enumerate(sensors) for b in sensors[i+1:]]
-    marker_diameter = 2 * min(m["w"],m["d"],m["h"]) * MARKER_SIZE_RATIO
-    assert min(distances) >= marker_diameter
     assert set(layout["sensors"]) == set(p["sensor_points"])
-    print(f"5 Sensor placement OK: {len(sensors)} parameter-driven points inside; minimum spacing {min(distances):.3f} mm >= conceptual marker diameter {marker_diameter:.3f} mm")
+    assert set(layout["sensor_boxes"]) == set(layout["sensors"])
+    boxes = list(layout["sensor_boxes"].values())
+    for box, center in zip(boxes, sensors):
+        assert all(0 <= lo < hi <= limit for lo, hi, limit in zip(box[:3], box[3:], (m["w"], m["d"], m["h"]))), "센서 상자가 내부 유효 체적을 벗어난다"
+        assert all(math.isclose((lo + hi) / 2, coordinate) for lo, hi, coordinate in zip(box[:3], box[3:], center)), "센서 중심점과 상자가 일치하지 않는다"
+        assert all(math.isclose(box[i], boxes[0][i], rel_tol=0, abs_tol=1e-9) for i in (2, 5)), "센서 상자의 z 구간이 서로 다르다"
+    gaps = []
+    for i, (x0,y0,z0,x1,y1,z1) in enumerate(boxes):
+        for ox0,oy0,oz0,ox1,oy1,oz1 in boxes[i+1:]:
+            overlaps = [x0 < ox1 and ox0 < x1, y0 < oy1 and oy0 < y1, z0 < oz1 and oz0 < z1]
+            assert not all(overlaps), "센서 상자가 서로 3차원으로 겹친다"
+            gaps.append(math.sqrt(max(0, ox0-x1, x0-ox1)**2 + max(0, oy0-y1, y0-oy1)**2 + max(0, oz0-z1, z0-oz1)**2))
+    sen55 = layout["sen55"]
+    print(f"5 Sensor placement OK: {len(boxes)} boxes {sen55['length']:g} x {sen55['width']:g} x {sen55['height']:g} mm fully inside; no 3D overlap; equal z intervals; minimum box gap {min(gaps):.3f} mm")
 
 
 def validate_electrical_envelope(p: dict[str,Any], m: dict[str,float], layout: dict[str,Any]) -> None:
-    """검사 9. 전장 설치 공간이 내부 유효 체적 안에 있고 팩과 3차원으로 간섭하지 않는지 본다."""
-    e = p["electrical_envelope"]
-    assert all(item["status"] == "proposed" for item in e.values()), "전장 설치 공간 값은 전부 status: proposed 여야 한다"
-    x0,y0,z0,x1,y1,z1 = electrical_envelope(p)
-    assert 0 <= x0 < x1 <= m["w"] and 0 <= y0 < y1 <= m["d"] and 0 <= z0 < z1 <= m["h"], \
-        "전장 설치 공간이 내부 유효 체적을 벗어난다"
+    """검사 9. 외형 상면 이상·평면 내 포함·중앙 배치·팩 비간섭을 확인한다."""
+    x0,y0,z0,x1,y1,z1 = electrical_envelope(p, m)
+    wall = m["wall"]
+    assert m["h"] + wall <= z0 < z1, "전장 설치 공간이 외형 상면 아래로 내려오거나 높이가 유효하지 않다"
+    assert -wall <= x0 < x1 <= m["w"] + wall and -wall <= y0 < y1 <= m["d"] + wall, \
+        "전장 설치 공간의 평면 투영이 외형 바닥 면적을 벗어난다"
+    assert math.isclose((x0 + x1) / 2, m["w"] / 2, rel_tol=0, abs_tol=1e-9), "전장 공간의 좌우 중심이 외형 중심과 다르다"
+    assert math.isclose((y0 + y1) / 2, m["d"] / 2, rel_tol=0, abs_tol=1e-9), "전장 공간의 전후 중심이 외형 중심과 다르다"
     px0,py0,pz0,px1,py1,_ = layout["pack"]
     pz1 = pz0 + m["stack_h"]
     overlaps = [x0 < px1 and px0 < x1, y0 < py1 and py0 < y1, z0 < pz1 and pz0 < z1]
     assert not all(overlaps), "전장 설치 공간이 팩과 3차원으로 간섭한다"
-    touching = [n for n, ok in (("좌측벽", x0 == 0), ("우측벽", x1 == m["w"]),
-                                ("전면", y0 == 0), ("후벽", y1 == m["d"]),
-                                ("바닥", z0 == 0), ("상판", z1 == m["h"])) if ok]
     print(f"9 Electrical envelope OK: {x1-x0:.0f} x {y1-y0:.0f} x {z1-z0:.0f} mm at ({x0:.0f}, {y0:.0f}, {z0:.0f}); "
-          f"팩과 3차원 간섭 없음; 밀착면 {', '.join(touching) if touching else '없음'}")
+          "외형 상면 이상; 평면 외형 내 포함·중심 일치; 팩과 3차원 간섭 없음")
 
 
 def validate_obj(path: Path, mtl_path: Path, expected_groups: int, m: dict[str, float]) -> None:
@@ -377,6 +411,15 @@ def validate_obj(path: Path, mtl_path: Path, expected_groups: int, m: dict[str, 
     for group, face in grouped_faces:
         for index in face:
             vertex = vertices[index-1]
+            if group == "electrical_envelope_exterior":
+                # 챔버 밖 상판 위이므로 z 상한은 면제하되, 평면 x/y 는 외형 안이어야 한다.
+                assert vertex[2] >= m["h"] + wall, (
+                    f"OBJ electrical envelope below outer top: vertex={index}, coordinate={vertex}"
+                )
+                assert all(-wall <= coordinate <= limit for coordinate, limit in zip(vertex[:2], outer_bounds[:2])), (
+                    f"OBJ electrical envelope outside outer plan bounds: vertex={index}, coordinate={vertex}"
+                )
+                continue
             assert all(-wall <= coordinate <= limit for coordinate, limit in zip(vertex, outer_bounds)), (
                 f"OBJ vertex outside outer bounds: group={group}, vertex={index}, coordinate={vertex}"
             )
@@ -384,22 +427,20 @@ def validate_obj(path: Path, mtl_path: Path, expected_groups: int, m: dict[str, 
                 assert all(0.0 <= coordinate <= limit for coordinate, limit in zip(vertex, internal_bounds)), (
                     f"OBJ vertex outside internal bounds: group={group}, vertex={index}, coordinate={vertex}"
                 )
-    print(f"6 OBJ reparse/bounds OK: {len(vertices)} vertices, {len(grouped_faces)} faces, {len(groups)} groups; internal groups inside 0..W/D/H; all vertices inside -wall..W/D/H+wall")
+    print(f"6 OBJ reparse/bounds OK: {len(vertices)} vertices, {len(grouped_faces)} faces, {len(groups)} groups; internal groups inside 0..W/D/H; chamber vertices inside -wall..W/D/H+wall; electrical_envelope_exterior above outer top")
 
 
 def validate_volumes(p: dict[str,Any], m: dict[str,float]) -> None:
     chamber = m["w"]*m["d"]*m["h"]/1_000_000_000
     pack = m["pack_w"]*m["pack_d"]*m["stack_h"]/1_000_000_000
-    x0,y0,z0,x1,y1,z1 = electrical_envelope(p)
-    envelope = (x1-x0)*(y1-y0)*(z1-z0)/1_000_000_000
-    free = chamber-pack-envelope
+    free = chamber-pack
     # 서로 다른 단위 변환 경로를 대조해 mm^3 -> m^3 계산과 자유 공간 차감을 검증한다.
     expected_chamber = (m["w"]/1000) * (m["d"]/1000) * (m["h"]/1000)
     expected_pack = (m["pack_w"]/1000) * (m["pack_d"]/1000) * (m["stack_h"]/1000)
     assert math.isclose(chamber, expected_chamber, abs_tol=1e-12)
     assert math.isclose(pack, expected_pack, abs_tol=1e-12)
-    assert math.isclose(free + pack + envelope, chamber, abs_tol=1e-12) and free > 0
-    print(f"7 Volume validation OK: internal {chamber:.6f} m3, pack {pack:.6f} m3, 전장 설치 공간(제안) {envelope:.6f} m3, free {free:.6f} m3")
+    assert math.isclose(free + pack, chamber, abs_tol=1e-12) and free > 0
+    print(f"7 Volume validation OK: internal {chamber:.6f} m3, pack {pack:.6f} m3, free {free:.6f} m3")
 
 
 def validate_stl(path: Path, expected: int) -> None:
@@ -414,9 +455,11 @@ def validate_stl(path: Path, expected: int) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--params", type=Path, default=DEFAULT_PARAMS)
+    parser.add_argument("--sen55-params", type=Path, default=DEFAULT_SEN55_PARAMS)
     args = parser.parse_args()
     p = load_params(args.params)
-    mesh, m, layout = build(p)
+    sen55 = load_sen55(args.sen55_params)
+    mesh, m, layout = build(p, sen55)
     validate_geometry(p,m,layout)
     write_mtl(MTL_PATH); write_obj(mesh,OBJ_PATH); write_stl(mesh,STL_PATH)
     validate_obj(OBJ_PATH, MTL_PATH, len({group for group, _, _ in mesh.faces}), m)
