@@ -3,7 +3,7 @@ title: index
 type: overview
 tags: [meta]
 created: 2026-09-04
-updated: 2026-09-07
+updated: 2026-09-08
 status: developing
 sources: []
 ---
@@ -34,6 +34,7 @@ ESS(리튬 배터리 에너지저장장치) 열폭주 조기감지 개발 프로
 - [[열폭주]] — 이 프로젝트가 막으려는 현상. 벤팅 이후 약 2분 만에 도달한다.
 - [[벤팅 가스]] — 열폭주 직전의 마지막 뚜렷한 신호. 조기감지의 축이 되는 오프가스.
 - [[모의장치]] — 지표 3 검수를 시연하는 밀폐 챔버 장치. SEN55 3대 + ESP32-S3 + 별도 카메라.
+- [[EnerX-0.5P]] — CATL 상용 액체냉각 컨테이너 ESS. H2·CO·열·연기 조합 판정과 BMS 데이터의 참고 사례.
 - [[VOC Index]] — 적응형 기준선 위의 1–500 상대 지표. 조건마다 상태를 복원하고 임계값으로 벤팅을 판정한다.
 
 ### Sources
@@ -45,3 +46,4 @@ ESS(리튬 배터리 에너지저장장치) 열폭주 조기감지 개발 프로
 - [[ESP32-S3-WROOM-1 & WROOM-1U Datasheet]] — 에스프레시프 모듈 데이터시트 v1.4(2024-11). 컨트롤러 사양의 출처.
 - [[PCA9548A Datasheet]] — TI PCA9548A 데이터시트 SCPS143G(2021-03 개정). 멀티플렉서 사양의 출처.
 - [[P82B715 Datasheet]] — TI P82B715 데이터시트 SCPS145B(2016-02 개정). 버스 익스텐더 사양과 풀업 설계 절차의 출처.
+- [[EnerX-0.5P Battery Container Operating Instruction and Maintenance Manual]] — CATL EnerX-0.5P O&M 매뉴얼 Rev 1.0 초안(2024-08). 상용 ESS의 FSS·BMS 동작의 출처.

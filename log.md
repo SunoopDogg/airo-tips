@@ -3,7 +3,7 @@ title: log
 type: overview
 tags: [meta]
 created: 2026-09-04
-updated: 2026-09-07
+updated: 2026-09-08
 status: developing
 sources: []
 ---
@@ -49,3 +49,6 @@ source 페이지 5건에서 원문 밖의 서술을 걷어냈다. [[ESS 화재�
 
 ## [2026-09-07] lint | 소프트랩 적용 — 저장소 전체 .md
 CLAUDE.md와 wiki-ingest·wiki-lint·wiki-query 스킬 문서의 하드랩을 풀어 한 문단을 한 줄로 만들었다. 위키 페이지와 index.md는 이미 규칙을 지키고 있었고, 직전 로그 항목만 하드랩이라 함께 폈다. "한 문단은 한 줄" 규칙의 적용 범위를 위키 본문에서 저장소의 모든 .md로 넓혀 CLAUDE.md에 명시.
+
+## [2026-09-08] ingest | EnerX-0.5P Battery Container Operating Instruction and Maintenance Manual
+CATL EnerX-0.5P 컨테이너 O&M 매뉴얼(Rev 1.0 초안, 2024-08)을 인제스트. [[EnerX-0.5P Battery Container Operating Instruction and Maintenance Manual]], [[EnerX-0.5P]] 생성. 상용 ESS가 H2·CO·열·연기 검출기의 조합으로 등급을 나누고 가스를 최우선 트리거로 둔다는 점을 [[배터리 화재감지 5단계]]·[[벤팅 가스]]·[[열폭주]]에, 상용 BMS의 데이터·인터페이스·고장등급을 [[ESS-BMS 연동 데이터]]에, 참고 한 줄을 [[모의장치]]에 반영. 원문 내부의 수치 불일치(셀 구성·랙당 모듈 수·IMM 수·등급 수)는 source 페이지에 기록.
