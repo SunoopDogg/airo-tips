@@ -7,6 +7,7 @@
 ```
 cad/
   CLAUDE.md        이 문서
+  parts.md         모의장치 구성 부품과 그 CAD 파일 목록
   chamber.md       치수 근거 대장
   cadgen           cadgen 실행 스크립트
   src/             모델 소스. 부품 하나에 .py 하나
