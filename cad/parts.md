@@ -13,6 +13,7 @@
 | 모델링 가능 | 형상을 정할 근거가 갖춰졌다 |
 | 치수 미정 | 부품은 정해졌지만 형상을 정할 치수가 `cad/chamber.md`에서 `unknown` 또는 `dependent`다 |
 | STEP 미확보 | 벤더 STEP을 쓸 부품인데 아직 받지 않았다 |
+| 확보 | 벤더 STEP을 받아 `step/imported/`에 두었다 |
 | 후보 | 채택 여부가 정해지지 않았다 |
 
 ## 챔버 본체
@@ -43,7 +44,7 @@
 
 | 부품 | 수량 | CAD 파일 | 형상 출처 | 상태 | 근거 |
 |---|---|---|---|---|---|
-| ESP32-S3-WROOM-1-N16R8 모듈 | 1 | `step/imported/` | 벤더 STEP | STEP 미확보 | 컨트롤러 (`wiki/topics/ESP32-S3-WROOM-1.md`, 사용자 확인 2026-09-07) |
+| ESP32-S3-WROOM-1-N16R8 모듈 | 1 | `step/imported/ESP32-S3-WROOM-1.step` | 벤더 STEP | 확보 | 컨트롤러 (`wiki/topics/ESP32-S3-WROOM-1.md`, 사용자 확인 2026-09-07). KiCad 3D 라이브러리의 풋프린트 모델을 step.parts(`esp32_s3_wroom_1`)에서 받았다. N16R8 같은 변형을 구분하지 않는 모델이며 외곽은 18 × 25.5 × 3.1 mm다 |
 | 전장 기판 | 1 | `src/control_board.py` | 모델링 | 치수 미정 | ESP32 모듈과 PCA9548A를 싣는다 (`wiki/topics/PCA9548A.md`, 사용자 확인 2026-09-07). 기판 형태(자체 PCB·개발보드)가 정해지지 않았다 |
 | 전장함 | 1 | `src/electronics_box.py` | 모델링 | 치수 미정 | 상판 외부 공간(`elec_W·D·H`)부터 정해야 한다 (`cad/chamber.md`) |
 
@@ -61,6 +62,6 @@ PCA9548A~SEN55 배선이 챔버 벽을 넘어 SEN55의 I2C 10 cm 미만 권고�
 
 - 시료 팩을 정한다. 챔버 외함·도어·관찰창·포트가 모두 여기서 출발한다.
 - 챔버 판재 재질·두께와 밀폐 방식을 정한다.
-- SEN55와 ESP32-S3-WROOM-1의 벤더 STEP을 받아 `step/imported/`에 둔다. SEN55 외형 치수는 `wiki/topics/SEN55.md`에 인제스트되어야 브래킷 치수의 근거가 된다.
+- SEN55의 벤더 STEP을 받아 `step/imported/`에 둔다. step.parts에는 없어 제조사에서 받아야 한다. SEN55 외형 치수는 `wiki/topics/SEN55.md`에 인제스트되어야 브래킷 치수의 근거가 된다.
 - SEN55 3대의 배치 형태와 케이블 관통 위치를 정한다.
 - 전장 기판 형태와 P82B715 채택 여부를 정한다.
