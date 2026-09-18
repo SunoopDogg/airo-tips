@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Run the text-to-cad plugin's cadgen inside a throwaway Docker container.
+#
+#   cad/cadgen <cadgen args...>     e.g. cad/cadgen step snapshot a.step a.png
+#   cad/cadgen python <script.py>   run a model script with cadgen's Python
+#
+# The current git worktree is mounted at /work and the current directory is kept,
+# so relative paths behave as on the host. Any worktree can call this.
+set -euo pipefail
+
+IMAGE="${CADGEN_IMAGE:-trixie-slim:uv-nvm}"
+
+# Follow the cadgen pin of the installed plugin so skill docs and runtime agree.
+pin=$(grep -ho 'cadgen==[0-9.]*' "$HOME"/.claude/plugins/cache/earthtojake/text-to-cad/*/claude.mcp.json 2>/dev/null | sort -V | tail -1 || true)
+VERSION="${CADGEN_VERSION:-${pin#cadgen==}}"
+VERSION="${VERSION:-0.7.15}"
+
+root=$(git rev-parse --show-toplevel)
+rel=$(git rev-parse --show-prefix)
+
+# Git Bash on Windows hands docker POSIX paths; give it a Windows one.
+host_root="$root"
+if command -v cygpath >/dev/null 2>&1; then
+    host_root=$(cygpath -m "$root")
+fi
+
+if [ "${1:-}" = "python" ]; then
+    shift
+    cmd=python
+else
+    cmd=cadgen
+fi
+
+tty=()
+[ -t 0 ] && [ -t 1 ] && tty=(-t)
+
+MSYS_NO_PATHCONV=1 exec docker run --rm -i "${tty[@]}" \
+    -v "$host_root:/work" \
+    -w "/work/$rel" \
+    -v cadgen-cache:/root/.cache \
+    -e CADGEN_DAEMON=0 \
+    -e UV_PYTHON_INSTALL_DIR=/root/.cache/uv-python \
+    "$IMAGE" \
+    /root/.local/bin/uvx --no-config --managed-python --python 3.13 \
+        --from "cadgen==$VERSION" "$cmd" "$@"
