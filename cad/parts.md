@@ -25,19 +25,21 @@
 | 시료 팩 (배치 기준 형상) | `pack_N` | `src/pack.py` | 모델링 | 치수 미정 | 내부 유효 치수의 출발점. 어느 팩인지 정해지지 않았다 (`cad/chamber.md`) |
 | 챔버 외함 | 1 | `src/chamber.py` | 모델링 | 치수 미정 | 밀폐 상태로 시험한다 (`wiki/topics/모의장치.md`, 사용자 확인 2026-09-07). 판재 재질·두께 미정 |
 | 도어 | 1 | `src/door.py` | 모델링 | 치수 미정 | 도어로 열고 닫는다 (`wiki/topics/모의장치.md`, 사용자 확인 2026-09-04). 개구·개폐 방향 미정 |
+| 도어 경첩 | 1식 | `src/door_hinge.py` | 모델링 또는 벤더 STEP | 치수 미정 | 도어로 열고 닫으려면 필요하다 (`wiki/topics/모의장치.md`, 사용자 확인 2026-09-04). 개폐 방향과 경첩 위치가 정해지지 않았다 (`cad/chamber.md`) |
 | 도어 핸들·래치 | 1식 | `src/door_handle.py` | 모델링 또는 벤더 STEP | 치수 미정 | 핸들 형식이 정해진 뒤 정한다 (`cad/chamber.md`) |
 | 도어 밀폐재 | 1 | `src/door_gasket.py` | 모델링 | 치수 미정 | 밀폐 등급과 압착 방식에 종속된다 (`cad/chamber.md`) |
 | 관찰창 | 1 | `src/window.py` | 모델링 | 치수 미정 | 크기·위치는 카메라가 무엇을 봐야 하는지에, 재질은 조건 4·5의 도달 온도에 달렸다 (`cad/chamber.md`) |
 | 받침 프레임 | 1 | `src/frame.py` | 모델링 | 치수 미정 | 높이 미정 (`cad/chamber.md`) |
 | 공용 주입 포트 | 1 | `src/inlet_port.py` | 모델링 | 치수 미정 | 다섯 조건의 자극을 넣는 자리. 구경은 자극 장비의 토출구와 유량에 종속된다 (`cad/chamber.md`) |
 | 배기 포트 | 1 | `src/exhaust_port.py` | 모델링 | 치수 미정 | 조건 사이 환기에 쓴다 (`wiki/topics/모의장치.md`, 사용자 확인 2026-09-07). 구경 미정 |
-| 케이블 관통부 | 1 | `src/cable_gland.py` | 모델링 또는 벤더 STEP | 치수 미정 | 밀폐를 유지하며 I2C 배선을 통과시킨다. 구경은 케이블 외경에 종속된다 (`cad/chamber.md`) |
+| 케이블 관통부 | 1 | `src/cable_gland.py` | 모델링 또는 벤더 STEP | 치수 미정 | 밀폐를 유지하며 I2C 배선을 통과시킨다. 구경은 케이블 외경에 종속되고, 커넥터를 단 채로 통과시킨다면 SEN55 케이블측 커넥터 외형에도 종속된다 (`cad/chamber.md`) |
 
 ## 센서부 — 챔버 내부
 
 | 부품 | 수량 | CAD 파일 | 형상 출처 | 상태 | 근거 |
 |---|---|---|---|---|---|
-| SEN55 환경센서 노드 (SEN55-SDN-T) | 3 | `step/imported/` | 벤더 STEP | STEP 미확보 | 구매 완료, 챔버 내부에 직접 노출 (`wiki/topics/SEN55.md`, 사용자 확인 2026-09-07). 외형 치수(`sen_L·W·T`)는 아직 위키에 없다 |
+| SEN55 환경센서 노드 | 3 | `step/imported/` | 벤더 STEP | STEP 미확보 | 구매 완료, 챔버 내부에 직접 노출 (`wiki/topics/SEN55.md`, 사용자 확인 2026-09-07). 외형 치수(`sen_L·W·T`)는 아직 위키에 없다 |
+| SEN55 케이블측 커넥터 (ACES 51452-006H0H0-001) | 3 | `step/imported/` | 벤더 STEP | STEP 미확보 | SEN55 6핀 커넥터의 케이블 쪽 짝이며 JST GHR-06V-S 호환이다 (`wiki/sources/Sensirion SEN5x Datasheet.md`). 브래킷 주변 여유와 케이블 관통부 구경에 영향을 준다. step.parts에 없다 |
 | SEN55 브래킷 | 3 | `src/sen55_bracket.py` | 모델링 | 치수 미정 | 3대의 배치 형태와 부착면 이격(`sen_gap`)이 정해져야 한다 (`cad/chamber.md`) |
 
 ## 전장부 — 챔버 상단 외부
@@ -46,7 +48,7 @@
 |---|---|---|---|---|---|
 | ESP32-S3-WROOM-1-N16R8 모듈 | 1 | `step/imported/ESP32-S3-WROOM-1.step` | 벤더 STEP | 확보 | 컨트롤러 (`wiki/topics/ESP32-S3-WROOM-1.md`, 사용자 확인 2026-09-07). KiCad 3D 라이브러리의 풋프린트 모델을 step.parts(`esp32_s3_wroom_1`)에서 받았다. N16R8 같은 변형을 구분하지 않는 모델이며 외곽은 18 × 25.5 × 3.1 mm다 |
 | 전장 기판 | 1 | `src/control_board.py` | 모델링 | 치수 미정 | ESP32 모듈과 PCA9548A를 싣는다 (`wiki/topics/PCA9548A.md`, 사용자 확인 2026-09-07). 기판 형태(자체 PCB·개발보드)가 정해지지 않았다 |
-| 전장함 | 1 | `src/electronics_box.py` | 모델링 | 치수 미정 | 상판 외부 공간(`elec_W·D·H`)부터 정해야 한다 (`cad/chamber.md`) |
+| 전장함 | 1 | `src/electronics_box.py` | 모델링 | 치수 미정 | 상판 외부 공간(`elec_W·D·H`)부터 정해야 한다 (`cad/chamber.md`). 전원과 통신을 USB 하나로 통합하므로 (`wiki/topics/모의장치.md`, 사용자 확인 2026-09-07) USB 케이블이 나갈 구멍을 낸다. 구멍 위치와 크기는 전장 기판의 USB 커넥터 위치와 형식에 종속된다 |
 
 PCA9548A와 풀업 저항, 3.3 V 공급 소자는 전장 기판 위의 소자이므로 따로 CAD 파일을 두지 않는다. 기판 형태가 정해지면 기판 모델 안에서 다룬다.
 
@@ -62,6 +64,6 @@ PCA9548A~SEN55 배선이 챔버 벽을 넘어 SEN55의 I2C 10 cm 미만 권고�
 
 - 시료 팩을 정한다. 챔버 외함·도어·관찰창·포트가 모두 여기서 출발한다.
 - 챔버 판재 재질·두께와 밀폐 방식을 정한다.
-- SEN55의 벤더 STEP을 받아 `step/imported/`에 둔다. step.parts에는 없어 제조사에서 받아야 한다. SEN55 외형 치수는 `wiki/topics/SEN55.md`에 인제스트되어야 브래킷 치수의 근거가 된다.
+- SEN55의 벤더 STEP을 받아 `step/imported/`에 둔다. step.parts에는 없어 제조사에서 받아야 한다. SEN55 외형 치수는 `wiki/topics/SEN55.md`에 인제스트되어야 브래킷 치수의 근거가 된다. SEN55 케이블측 커넥터(ACES 51452-006H0H0-001) STEP도 제조사에서 받는다.
 - SEN55 3대의 배치 형태와 케이블 관통 위치를 정한다.
 - 전장 기판 형태와 P82B715 채택 여부를 정한다.
