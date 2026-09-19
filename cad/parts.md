@@ -38,7 +38,7 @@
 
 | 부품 | 수량 | CAD 파일 | 형상 출처 | 상태 | 근거 |
 |---|---|---|---|---|---|
-| SEN55 환경센서 노드 | 3 | `step/imported/` | 벤더 STEP | STEP 미확보 | 구매 완료, 챔버 내부에 직접 노출 (`wiki/topics/SEN55.md`, 사용자 확인 2026-09-07). 외형 치수(`sen_L·W·T`)는 아직 위키에 없다 |
+| SEN55 환경센서 노드 | 3 | `step/imported/Sensirion_STEP_SEN5x.STEP` | 벤더 STEP | 확보 | 구매 완료, 챔버 내부에 직접 노출 (`wiki/topics/SEN55.md`, 사용자 확인 2026-09-07). Sensirion SEN55 제품 페이지의 "STEP file SEN5x"(2022-01)를 받았다. SEN5x 계열 공통 모델이고 원점이 외곽 중심이 아니므로 조립품에서 옮겨 쓴다. 외형 치수(`sen_L·W·T`)는 아직 위키에 없어, 이 STEP에서 잰 값을 브래킷 치수의 근거로 쓰지 않는다 |
 | SEN55 케이블측 커넥터 (ACES 51452-006H0H0-001) | 3 | `step/imported/` | 벤더 STEP | STEP 미확보 | SEN55 6핀 커넥터의 케이블 쪽 짝이며 JST GHR-06V-S 호환이다 (`wiki/sources/Sensirion SEN5x Datasheet.md`). 브래킷 주변 여유와 케이블 관통부 구경에 영향을 준다. step.parts에 없다 |
 | SEN55 브래킷 | 3 | `src/sen55_bracket.py` | 모델링 | 치수 미정 | 3대의 배치 형태와 부착면 이격(`sen_gap`)이 정해져야 한다 (`cad/chamber.md`) |
 
@@ -64,6 +64,6 @@ PCA9548A~SEN55 배선이 챔버 벽을 넘어 SEN55의 I2C 10 cm 미만 권고�
 
 - 시료 팩을 정한다. 챔버 외함·도어·관찰창·포트가 모두 여기서 출발한다.
 - 챔버 판재 재질·두께와 밀폐 방식을 정한다.
-- SEN55의 벤더 STEP을 받아 `step/imported/`에 둔다. step.parts에는 없어 제조사에서 받아야 한다. SEN55 외형 치수는 `wiki/topics/SEN55.md`에 인제스트되어야 브래킷 치수의 근거가 된다. SEN55 케이블측 커넥터(ACES 51452-006H0H0-001) STEP도 제조사에서 받는다.
+- SEN55 외형 치수는 `wiki/topics/SEN55.md`에 인제스트되어야 브래킷 치수의 근거가 된다. SEN55 케이블측 커넥터(ACES 51452-006H0H0-001) STEP도 제조사에서 받는다.
 - SEN55 3대의 배치 형태와 케이블 관통 위치를 정한다.
 - 전장 기판 형태와 P82B715 채택 여부를 정한다.
