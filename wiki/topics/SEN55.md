@@ -24,7 +24,7 @@ NOx Index는 SEN5x 제품군 중 SEN55에만 있는 신호다 (같은 문헌). �
 
 ## 외형
 
-SEN5x 제품군은 외형이 모두 같다. 외형은 길이 52.3 ± 0.4 mm, 폭 43.3 +0.2/−0.6 mm이고, 두께는 팬이 있는 쪽이 최대 22.3 ± 0.4 mm, 본체가 13.2 ± 0.4 mm다. 무게는 36.4 g ± 10%다. 커넥터는 두께 쪽 측면에 있고, 장착은 별도 문서인 "SEN5x Mechanical Assembly and Design-in Guidelines"를 따르라고 한다 ([[Sensirion SEN5x Datasheet]]).
+SEN5x 제품군은 외형이 모두 같다. 외형은 길이 52.3 ± 0.4 mm, 폭 43.3 +0.2/−0.6 mm이고, 두께는 팬이 있는 쪽이 최대 22.3 ± 0.4 mm, 본체가 13.2 ± 0.4 mm다. 무게는 36.4 g ± 10%다. 커넥터는 두께 쪽 측면에 있고, 장착은 별도 문서인 "SEN5x Mechanical Assembly and Design-in Guidelines"를 따르라고 한다 ([[Sensirion SEN5x Datasheet]]). [[모의장치]]에서는 천장에서 20 mm 띄운 브래킷에 단다 (사용자 확인 2026-10-07).
 
 ## 이 프로젝트에서 걸리는 지점
 
