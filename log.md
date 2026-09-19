@@ -3,7 +3,7 @@ title: log
 type: overview
 tags: [meta]
 created: 2026-09-04
-updated: 2026-09-08
+updated: 2026-10-06
 status: developing
 sources: []
 ---
@@ -52,3 +52,6 @@ CLAUDE.md와 wiki-ingest·wiki-lint·wiki-query 스킬 문서의 하드랩을 �
 
 ## [2026-09-08] ingest | EnerX-0.5P Battery Container Operating Instruction and Maintenance Manual
 CATL EnerX-0.5P 컨테이너 O&M 매뉴얼(Rev 1.0 초안, 2024-08)을 인제스트. [[EnerX-0.5P Battery Container Operating Instruction and Maintenance Manual]], [[EnerX-0.5P]] 생성. 상용 ESS가 H2·CO·열·연기 검출기의 조합으로 등급을 나누고 가스를 최우선 트리거로 둔다는 점을 [[배터리 화재감지 5단계]]·[[벤팅 가스]]·[[열폭주]]에, 상용 BMS의 데이터·인터페이스·고장등급을 [[ESS-BMS 연동 데이터]]에, 참고 한 줄을 [[모의장치]]에 반영. 원문 내부의 수치 불일치(셀 구성·랙당 모듈 수·IMM 수·등급 수)는 source 페이지에 기록.
+
+## [2026-10-06] ingest | 사용자 확인 · 모의장치 챔버 구성과 P82B715 채택
+사용자가 확인한 챔버 형상 결정(더미 팩, 3030 프로파일과 알루미늄 복합판, 오른쪽 경첩의 앞면 여닫이 아크릴 도어와 토글 클램프, 양 옆면에서 마주 보는 주입·배기 포트, 캐스터 4개)을 [[모의장치]]의 새 "챔버 구성" 절에 반영. SEN55 3대의 천장 120° 대칭 배치를 [[모의장치]]·[[SEN55]]에, 전장 기판이 자체 PCB라는 것을 [[모의장치]]·[[PCA9548A]]에 추가. 고려 중이던 [[P82B715]] 채택을 [[P82B715]]·[[모의장치]]·[[PCA9548A]]·[[ESP32-S3-WROOM-1]]·[[SEN55]]와 index 요약에 반영하고, 차폐 케이블 사용 여부는 미정으로 남김.

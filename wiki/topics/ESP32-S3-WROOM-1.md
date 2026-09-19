@@ -3,7 +3,7 @@ title: ESP32-S3-WROOM-1
 type: topic
 tags: [sensor-spec, 컨트롤러, 모의장치]
 created: 2026-09-07
-updated: 2026-09-07
+updated: 2026-10-06
 status: developing
 sources: ["[[ESP32-S3-WROOM-1 & WROOM-1U Datasheet]]", "[[Sensirion SEN5x Datasheet]]", "[[PCA9548A Datasheet]]", "[[P82B715 Datasheet]]"]
 ---
@@ -28,7 +28,7 @@ ESP32-S3 계열 SoC(Xtensa 듀얼코어 LX7, 최대 240 MHz)에 16 MB Quad SPI �
 
 **속도는 SEN55가 정한다.** ESP32-S3 I2C는 400 kbit/s 이상까지 되지만 SEN55는 표준 모드 100 kbit/s가 최대이고 클럭 스트레칭을 쓰지 않는다 ([[Sensirion SEN5x Datasheet]]). 세 버스 모두 100 kbit/s 이하다.
 
-**배선 길이.** SEN55 데이터시트는 전자기 간섭과 크로스토크를 피하려면 I2C 배선을 10 cm 미만으로 하거나 차폐 케이블을 쓰라고 한다 (같은 문헌). 모듈과 [[PCA9548A]]는 챔버 상단 외부에 두고 SEN55만 챔버 내부에 두기로 했으므로 (사용자 확인 2026-09-07), PCA9548A~SEN55 배선이 챔버 벽을 가로지른다. 이 구간에 [[P82B715]] 버스 익스텐더를 채널마다 한 쌍씩 넣는 안과 차폐 케이블을 쓰는 안을 고려 중이며, 둘 다 확정은 아니다 (사용자 확인 2026-09-07). P82B715를 쓰면 VCC 5 V를 USB VBUS에서 분기하고 대기 전류 개당 14 mA가 ([[P82B715 Datasheet]]) USB 전류 예산에 더해진다. [[모의장치]]의 Contradictions 참조.
+**배선 길이.** SEN55 데이터시트는 전자기 간섭과 크로스토크를 피하려면 I2C 배선을 10 cm 미만으로 하거나 차폐 케이블을 쓰라고 한다 (같은 문헌). 모듈과 [[PCA9548A]]는 챔버 상단 외부에 두고 SEN55만 챔버 내부에 두기로 했으므로 (사용자 확인 2026-09-07), PCA9548A~SEN55 배선이 챔버 벽을 가로지른다. 이 구간에 [[P82B715]] 버스 익스텐더를 채널마다 한 쌍씩 넣는 안과 차폐 케이블을 쓰는 안을 고려했고 (사용자 확인 2026-09-07), P82B715를 쓰기로 했다 (사용자 확인 2026-10-06). 차폐 케이블 사용 여부는 정해지지 않았다. P82B715를 쓰면 VCC 5 V를 USB VBUS에서 분기하고 대기 전류 개당 14 mA가 ([[P82B715 Datasheet]]) USB 전류 예산에 더해진다. [[모의장치]]의 Contradictions 참조.
 
 ## 전원
 
