@@ -3,7 +3,7 @@ title: Sensirion SEN5x Datasheet
 type: source
 tags: [sensor-spec, 데이터시트, 환경센서]
 created: 2026-09-07
-updated: 2026-09-07
+updated: 2026-10-07
 status: stable
 sources: []
 source_path: raw/sensor-spec/Sensirion_SEN5x_Datasheet_V2-D1_2203.pdf
@@ -130,3 +130,9 @@ Warm Start Parameter(0x60C6)는 온도 보정 알고리즘이 기본적으로 �
 공급전압 4.5 / 5.0 / 5.5 V(최소·전형·최대), 전원 인가 후 I2C 통신 시작까지 최대 50 ms. 평균 소비전류는 SEN55 기준 Idle 최초 10초 3.8 mA, 이후 2.6 mA, RHT/Gas-only 6.8 mA, Measurement 최초 60초 70 mA, 이후 63 mA다. 피크 전류는 측정 모드에서 100 mA(펄스폭 16 µs). 무게는 36.4 g ± 10%, 수명은 24시간 연속 동작 기준 MTTF 10년 초과, 소음은 0.2 m에서 24 dB(A)이며 연간 +0.5 dB(A)씩 드리프트한다.
 
 ESD 내성은 IEC 61000-4-2 기준 접촉 ±4 kV, 기중 ±8 kV다.
+
+## 외형 치수
+
+7.1절 Figure 7이 제품군 공통 외형도를 mm 단위로 준다. 공차가 붙은 주요 치수는 길이 52.3 ± 0.4, 폭 43.3 +0.2/−0.6, 두께는 팬이 있는 쪽 최대 22.3 ± 0.4, 본체 13.2 ± 0.4다. 괄호로 표시된 참고 치수로는 팬 개구 지름 19, 팬 쪽 블록 폭 27.24, 커넥터 쪽 높이 16.7·13.2 등이 있다. 커넥터는 두께 쪽 측면에 있다.
+
+외형도 본문은 그림이라 텍스트로 추출되지 않는다. 장착에 관해서는 별도 문서인 "SEN5x Mechanical Assembly and Design-in Guidelines"를 따르라고 한다 (2.5절).

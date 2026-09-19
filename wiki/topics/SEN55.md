@@ -3,7 +3,7 @@ title: SEN55
 type: topic
 tags: [sensor-spec, 환경센서, 모의장치]
 created: 2026-09-07
-updated: 2026-10-06
+updated: 2026-10-07
 status: developing
 sources: ["[[Sensirion SEN5x Datasheet]]", "[[ESP32-S3-WROOM-1 & WROOM-1U Datasheet]]", "[[PCA9548A Datasheet]]", "[[P82B715 Datasheet]]"]
 ---
@@ -21,6 +21,10 @@ sources: ["[[Sensirion SEN5x Datasheet]]", "[[ESP32-S3-WROOM-1 & WROOM-1U Datash
 정품명 SEN55-SDN-T, 품번 3.000.593. Read Measured Values(0x03C4) 한 번에 여덟 개 값이 나온다 — PM1.0 · PM2.5 · PM4.0 · PM10 질량농도, 보정 상대습도, 보정 주위온도, VOC Index, NOx Index ([[Sensirion SEN5x Datasheet]]). 새 값은 매초 갱신된다.
 
 NOx Index는 SEN5x 제품군 중 SEN55에만 있는 신호다 (같은 문헌). 이 프로젝트에서 NOx Index에 어떤 역할을 줄지는 아직 정해지지 않았다.
+
+## 외형
+
+SEN5x 제품군은 외형이 모두 같다. 외형은 길이 52.3 ± 0.4 mm, 폭 43.3 +0.2/−0.6 mm이고, 두께는 팬이 있는 쪽이 최대 22.3 ± 0.4 mm, 본체가 13.2 ± 0.4 mm다. 무게는 36.4 g ± 10%다. 커넥터는 두께 쪽 측면에 있고, 장착은 별도 문서인 "SEN5x Mechanical Assembly and Design-in Guidelines"를 따르라고 한다 ([[Sensirion SEN5x Datasheet]]).
 
 ## 이 프로젝트에서 걸리는 지점
 
