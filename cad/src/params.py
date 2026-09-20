@@ -38,7 +38,7 @@ pack_z1 = pack_z0 + pack_H  # 팩 위치 — z 끝 (dependent, 360)
 # --- 골조 ---
 prof_W = 30.0  # prof_W — 골조 프로파일 단면 한 변 (fixed, 3030 규격, 사용자 결정 2026-10-06)
 profile_id = "profile_3030_b_slot8"  # 사용자가 결정한 형상 — 3030 B형 슬롯 8 단면의 step.parts id (2026-10-07)
-corner_bracket_id = "extrusion_3030_slot8_inside_corner_bracket_standard"  # 사용자가 결정한 형상 — 골조 이음 안쪽 코너 브래킷의 step.parts id (2026-10-07)
+corner_bracket_id = "corner_bracket_3030_single_simple"  # 사용자가 결정한 형상 — 골조 이음 안쪽 코너 브래킷(L자)의 step.parts id, 처음 정한 평판 부품을 대신한다 (2026-10-07)
 frame_post_N = 4  # 골조 부재 — 세로재 개수 (dependent)
 frame_beam_x_N = 4  # 골조 부재 — 폭 방향 수평재 개수 (dependent)
 frame_beam_y_N = 4  # 골조 부재 — 깊이 방향 수평재 개수 (dependent)
