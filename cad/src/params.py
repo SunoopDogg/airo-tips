@@ -199,6 +199,7 @@ ceil_cy = D_in / 2  # 케이블 관통 위치 — 천장 중심 y (dependent, 48
 gland_id = "cable_gland_body_m20"  # 글랜드 — step.parts id (fixed, 사용자 결정 2026-10-07)
 gland_N = 3  # 글랜드 — 개수, 케이블마다 하나 (fixed, 사용자 결정 2026-10-07)
 gland_pitch = 30.0  # 글랜드 — 간격 (fixed, 사용자 결정 2026-10-07)
+gland_hole_dia = 20.0  # 글랜드 — 패널·전장함 바닥 구멍 지름, step.parts cable_gland_panel_hole_cutter_m20의 안지름 Ø20 (fixed, 글랜드 행 2026-10-07)
 gland_x = tuple(ceil_cx + (i - (gland_N - 1) / 2) * gland_pitch for i in range(gland_N))  # 케이블 관통 위치 — 천장 중심을 기준으로 x 방향 한 줄의 글랜드 중심 x (dependent, 660 · 690 · 720)
 gland_y = ceil_cy  # 케이블 관통 위치 — 글랜드 중심 y (dependent, 485)
 
