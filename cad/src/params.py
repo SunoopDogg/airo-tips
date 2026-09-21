@@ -162,10 +162,11 @@ clamp_end = 50.0  # 토글 클램프 모델 — 위·아래 중심이 도어 판
 clamp_z = (door_plate_z1 - clamp_end, door_plate_z0 + clamp_end)  # 토글 클램프 모델 — 위·아래 중심 z (dependent, 440 · 20)
 
 # --- 손잡이 ---
-handle_id = "pull_handle_mount_spacing128"  # 손잡이 모델 — step.parts id, 세로로 단다 (fixed, 사용자 결정 2026-10-07)
+handle_spacing = 128.0  # 손잡이 모델 — 당김 손잡이의 장착 구멍 간격, 두 기둥 축 사이 거리. 세로로 단다 (fixed, 사용자 결정 2026-10-07). step.parts 모델 결함으로 대표 형상을 직접 그린다(루프 중 추천안 자동 선택, 사용자 확인 대기)
 handle_inset = 40.0  # 손잡이 모델 — 중심이 도어 판 왼쪽 끝에서 안쪽으로 들어온 거리 (fixed, 사용자 결정 2026-10-07)
 handle_x = door_plate_x0 + handle_inset  # 손잡이 모델 — 중심 x (dependent, 60)
 handle_z = door_plate_zc  # 손잡이 모델 — 중심 z, 판 높이의 중앙 (dependent, 230)
+handle_post_z = (handle_z - handle_spacing / 2, handle_z + handle_spacing / 2)  # 손잡이 모델 — 아래·위 기둥 축 z (dependent, 166 · 294)
 
 # --- 캐스터 ---
 caster_id = "locking_swivel_caster_wheel_d100"  # 캐스터 모델 · 바퀴 지름 — step.parts id (fixed, 사용자 결정 2026-10-07)
