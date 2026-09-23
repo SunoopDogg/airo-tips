@@ -169,7 +169,6 @@ handle_z = door_plate_zc  # 손잡이 모델 — 중심 z, 판 높이의 중앙 
 handle_post_z = (handle_z - handle_spacing / 2, handle_z + handle_spacing / 2)  # 손잡이 모델 — 아래·위 기둥 축 z (dependent, 166 · 294)
 
 # --- 캐스터 ---
-caster_id = "locking_swivel_caster_wheel_d100"  # 캐스터 모델 · 바퀴 지름 — step.parts id (fixed, 사용자 결정 2026-10-07)
 caster_N = 4  # 캐스터 모델 · 바퀴 지름 — 개수 (fixed, 사용자 결정 2026-10-06)
 caster_wheel_dia = 100.0  # 캐스터 모델 · 바퀴 지름 — 바퀴 지름 (fixed, 사용자 결정 2026-10-07)
 caster_mount_z = panel_bottom_z0  # 캐스터 모델 · 바퀴 지름 — 장착면, 바닥 패널 아랫면 (dependent, −33)
