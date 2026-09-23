@@ -269,6 +269,25 @@ elec_y1 = elec_cy + elec_D / 2  # elec_D — 전장함 y 끝 (dependent, 522)
 elec_z0 = panel_top_z1  # elec_H — 전장함 밑면, 천장 패널 윗면 (dependent, 693)
 elec_z1 = elec_z0 + elec_H  # elec_H — 전장함 윗면 (dependent, 722)
 
+# --- 전장 기판 위치 ---
+pcb_cx = elec_cx  # elec_W elec_D elec_H — 전장 기판 평면 중심 x. 전장함 바깥이 기판 + 양쪽 같은 여유 + 양쪽 벽이라 전장함 중심과 같다 (dependent, 690)
+pcb_cy = elec_cy  # elec_W elec_D elec_H — 전장 기판 평면 중심 y, 전장함 중심과 같다 (dependent, 485)
+pcb_x0 = pcb_cx - pcb_W / 2  # pcb_W pcb_D pcb_T — 기판 x 시작 (dependent, 650)
+pcb_x1 = pcb_cx + pcb_W / 2  # pcb_W pcb_D pcb_T — 기판 x 끝 (dependent, 730)
+pcb_y0 = pcb_cy - pcb_D / 2  # pcb_W pcb_D pcb_T — 기판 y 시작, 앞쪽 변 (dependent, 455)
+pcb_y1 = pcb_cy + pcb_D / 2  # pcb_W pcb_D pcb_T — 기판 y 끝, 뒤쪽 변 (dependent, 515)
+pcb_z0 = elec_z0 + elec_floor_T + elec_standoff_H  # 전장함 세부 — 기판 밑면, 전장함 바닥 윗면 위 스탠드오프 높이 (dependent, 705)
+pcb_z1 = pcb_z0 + pcb_T  # pcb_W pcb_D pcb_T — 기판 윗면 (dependent, 706.6)
+pcb_hole_x = (pcb_x0 + pcb_hole_edge, pcb_x1 - pcb_hole_edge)  # pcb_W pcb_D pcb_T — M3 구멍 축 x, 스탠드오프 축 (dependent, 654 · 726)
+pcb_hole_y = (pcb_y0 + pcb_hole_edge, pcb_y1 - pcb_hole_edge)  # pcb_W pcb_D pcb_T — M3 구멍 축 y, 스탠드오프 축 (dependent, 459 · 511)
+usbc_x0 = pcb_cx - usbc_W / 2  # pcb_W pcb_D pcb_T — USB-C 블록 x 시작, 뒤쪽 변 가운데 (dependent, 685.5)
+usbc_x1 = pcb_cx + usbc_W / 2  # pcb_W pcb_D pcb_T — USB-C 블록 x 끝 (dependent, 694.5)
+usbc_y1 = pcb_y1  # pcb_W pcb_D pcb_T — USB-C 블록 뒷면, 기판 뒤쪽 변에 맞춘다 (dependent, 515)
+usbc_y0 = usbc_y1 - usbc_D  # pcb_W pcb_D pcb_T — USB-C 블록 앞면 (dependent, 507.5)
+usbc_z0 = pcb_z1  # pcb_W pcb_D pcb_T — USB-C 블록 밑면, 기판 윗면 (dependent, 706.6)
+usbc_z1 = usbc_z0 + usbc_H  # pcb_W pcb_D pcb_T — USB-C 블록 윗면 (dependent, 709.9)
+usbc_cz = (usbc_z0 + usbc_z1) / 2  # pcb_W pcb_D pcb_T — USB-C 블록 중심 z, 전장함 USB 구멍 중심 (dependent, 708.25)
+
 
 if __name__ == "__main__":
     def _fmt(value):
