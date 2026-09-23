@@ -188,6 +188,7 @@ port_flange_T = 5.0  # 포트 세부 — 플랜지 두께 (fixed, 사용자 결�
 port_bolt_thread = "M5"  # 포트 세부 — 플랜지 볼트 규격 (fixed, 사용자 결정 2026-10-07)
 port_bolt_N = 4  # 포트 세부 — 플랜지 구멍 개수 (fixed, 사용자 결정 2026-10-07)
 port_bolt_PCD = 80.0  # 포트 세부 — 플랜지 구멍 피치원 지름 (fixed, 사용자 결정 2026-10-07)
+port_bolt_hole_dia = 5.5  # 포트 세부 — 플랜지 M5 통과 구멍 지름, M6 Ø6.5와 같은 0.5 mm 틈새 (fixed, 코디네이터가 맞춤 2026-10-07, 사용자 확인 대기, chamber.md 커밋 8a0033b)
 port_cap_wall = 3.0  # 포트 세부 — 마개 벽 두께 (fixed, 사용자 결정 2026-10-07)
 port_cap_depth = 20.0  # 포트 세부 — 마개 깊이 (fixed, 사용자 결정 2026-10-07)
 inlet_tube_x0 = panel_right_x0  # 포트 세부 — 주입 관 안쪽 끝, 오른쪽 패널 안쪽 면 (dependent, 1410)
@@ -223,6 +224,7 @@ sen_xy = tuple((ceil_cx + sen_r * math.cos(math.radians(a)), ceil_cy + sen_r * m
 brk_wall = 2.5  # brk_wall — SEN55 브래킷 벽 두께 (fixed, 사용자 결정 2026-10-07)
 brk_bolt_thread = "M4"  # brk_wall — 브래킷을 천장 패널에 다는 볼트 규격 (fixed, 사용자 결정 2026-10-07)
 brk_bolt_N = 2  # brk_wall — 브래킷 볼트 개수 (fixed, 사용자 결정 2026-10-07)
+brk_bolt_hole_dia = 4.5  # brk_wall — 브래킷 윗판 M4 통과 구멍 지름, M6 Ø6.5와 같은 0.5 mm 틈새 (fixed, 코디네이터가 맞춤 2026-10-07, 사용자 확인 대기, chamber.md 커밋 cdddbac)
 
 # --- P82B715 센서측 기판 ---
 ext_W = 30.0  # ext_W — 기판 긴 변 (fixed, 사용자 결정 2026-10-07)

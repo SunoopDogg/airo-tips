@@ -15,11 +15,8 @@ from cadgen import build123d as bd
 from cadgen import step
 
 from params import (
-    elec_cx,
-    elec_cy,
     elec_floor_T,
     elec_standoff_dia,
-    elec_standoff_H,
     elec_wall,
     elec_x0,
     elec_x1,
@@ -32,12 +29,12 @@ from params import (
     gland_x,
     gland_y,
     panel_top_z0,
-    pcb_D,
-    pcb_hole_edge,
-    pcb_W,
+    pcb_hole_x,
+    pcb_hole_y,
+    pcb_z0,
 )
 
-THREAD_OD = 20.0  # 나사부 지름 — M20의 호칭 지름 20, 나사산 없는 원통으로 그린다 (chamber.md 글랜드 행 "M20 글랜드", 명세 "단순 원통 Ø20")
+THREAD_OD = gland_hole_dia  # 나사부 지름 — M20의 호칭 지름 20, 나사산 없는 원통으로 그린다. 패널·전장함 바닥 구멍 gland_hole_dia(Ø20)와 같다 (chamber.md 글랜드 행 "M20 글랜드", 명세 "단순 원통 Ø20")
 
 # 크기는 모두 작업 가정 — 사용자 확인 필요. 흔한 M20 × 1.5 플라스틱 케이블 글랜드(조임 범위 약 6–12 mm)를 본뜬 대표값이다.
 BODY_AF = 24.0  # 작업 가정 — 사용자 확인 필요. 몸체 육각 맞변 거리. 꼭짓점 간 거리 27.71 < 30(간격)
@@ -61,12 +58,9 @@ THREAD_Z1 = BODY_Z1 + THREAD_L  # 나사부 끝 (702)
 LOCK_Z0 = elec_z0 + elec_floor_T  # 잠금 너트 밑면, 전장함 바닥 윗면 (695)
 LOCK_Z1 = LOCK_Z0 + LOCKNUT_H  # 잠금 너트 윗면 (700)
 
-# 전장함 안쪽 — 잠금 너트가 피해야 할 자리 (params.py에서 계산)
-PCB_Z0 = LOCK_Z0 + elec_standoff_H  # 전장 기판 밑면, 스탠드오프 윗면 (705)
+# 전장함 안쪽 — 잠금 너트가 피해야 할 자리 (params.py에서 계산). 전장 기판 밑면은 pcb_z0(705), 스탠드오프 축은 pcb_hole_x × pcb_hole_y(654 · 726 × 459 · 511)
 BOX_IN_X = (elec_x0 + elec_wall, elec_x1 - elec_wall)  # 전장함 안쪽 벽 x (645, 735)
 BOX_IN_Y = (elec_y0 + elec_wall, elec_y1 - elec_wall)  # 전장함 안쪽 벽 y (450, 520)
-STANDOFF_X = (elec_cx - (pcb_W / 2 - pcb_hole_edge), elec_cx + (pcb_W / 2 - pcb_hole_edge))  # 스탠드오프 축 x (654, 726)
-STANDOFF_Y = (elec_cy - (pcb_D / 2 - pcb_hole_edge), elec_cy + (pcb_D / 2 - pcb_hole_edge))  # 스탠드오프 축 y (459, 511)
 
 
 def _corner(af: float) -> float:
@@ -128,14 +122,14 @@ def _check_layout() -> None:
     assert BORE_DIA < THREAD_OD and DOME_DIA < DOME_AF and DOME_FILLET < DOME_H
     assert DOME_DIA / 2 - DOME_FILLET > BORE_DIA / 2, "돔 둥글림이 가운데 구멍까지 먹는다"
     assert max(_corner(BODY_AF), _corner(DOME_AF), _corner(LOCKNUT_AF)) < gland_pitch, "육각 꼭짓점 간 거리가 글랜드 간격 이상이다"
-    assert LOCKNUT_H < PCB_Z0 - LOCK_Z0, "잠금 너트 높이가 전장함 바닥 윗면에서 기판 밑면까지보다 크다"
-    assert LOCK_Z1 <= THREAD_Z1 <= PCB_Z0, "나사부 끝이 잠금 너트 윗면보다 낮거나 기판 밑면보다 높다"
+    assert LOCKNUT_H < pcb_z0 - LOCK_Z0, "잠금 너트 높이가 전장함 바닥 윗면에서 기판 밑면까지보다 크다"
+    assert LOCK_Z1 <= THREAD_Z1 <= pcb_z0, "나사부 끝이 잠금 너트 윗면보다 낮거나 기판 밑면보다 높다"
     half_x, half_y = LOCKNUT_AF / 2, _corner(LOCKNUT_AF) / 2
     assert BOX_IN_X[0] < min(gland_x) - half_x and max(gland_x) + half_x < BOX_IN_X[1], "잠금 너트가 전장함 안쪽 벽(x)에 걸린다"
     assert BOX_IN_Y[0] < gland_y - half_y and gland_y + half_y < BOX_IN_Y[1], "잠금 너트가 전장함 안쪽 벽(y)에 걸린다"
     for gx in gland_x:
-        for sx in STANDOFF_X:
-            for sy in STANDOFF_Y:
+        for sx in pcb_hole_x:
+            for sy in pcb_hole_y:
                 d = math.hypot(sx - gx, sy - gland_y)
                 assert d > half_y + elec_standoff_dia / 2, f"잠금 너트 ({gx}, {gland_y})가 스탠드오프 ({sx}, {sy})에 걸린다"
 

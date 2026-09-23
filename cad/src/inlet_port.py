@@ -25,6 +25,7 @@ from params import (
     inlet_tube_x1,
     panel_right_x0,
     panel_right_x1,
+    port_bolt_hole_dia,
     port_bolt_N,
     port_bolt_PCD,
     port_cap_depth,
@@ -36,7 +37,6 @@ from params import (
     port_z,
 )
 
-PORT_BOLT_HOLE_DIA = 5.5  # 포트 세부 — 플랜지 M5 볼트 통과 구멍 지름. chamber.md 포트 세부 행은 "M5 구멍 4개 PCD 80 mm"로 지름을 적지 않았다. 코디네이터가 준 값이고 chamber.md · params.py에 자리 잡기를 기다린다
 PORT_BOLT_ANGLE0 = 45.0  # 작업 가정 — 사용자 확인 필요. 첫 플랜지 구멍의 각도(°), +y에서 +z 쪽으로 잰다. 구멍을 y·z 축에서 45° 돌린 자리에 둔다
 
 
@@ -72,14 +72,14 @@ def port_parts(bore: float, tube_OD: float, x_in: float, x_end: float, x_panel_o
     cap_x1 = x_end + sign * port_cap_wall  # 마개 끝판 바깥면
     assert sign * (x_panel_out - x_in) > 0 and sign * (x_end - flange_x1) > 0, "관이 패널과 플랜지를 지나 바깥으로 나오지 않는다"
     assert sign * (cap_x0 - flange_x1) > 0, "마개가 플랜지에 닿는다"
-    assert port_bolt_PCD / 2 - PORT_BOLT_HOLE_DIA / 2 > tube_OD / 2, "플랜지 구멍이 관에 걸린다"
-    assert port_bolt_PCD / 2 + PORT_BOLT_HOLE_DIA / 2 < port_flange_OD / 2, "플랜지 구멍이 플랜지 밖으로 나간다"
+    assert port_bolt_PCD / 2 - port_bolt_hole_dia / 2 > tube_OD / 2, "플랜지 구멍이 관에 걸린다"
+    assert port_bolt_PCD / 2 + port_bolt_hole_dia / 2 < port_flange_OD / 2, "플랜지 구멍이 플랜지 밖으로 나간다"
 
     # 관+플랜지: 속이 찬 관 외경 원기둥과 플랜지 원판을 합친 뒤 관 내경과 구멍을 뺀다(같은 면끼리 합치는 경우를 피한다).
     pipe = x_cylinder(tube_OD / 2, x_in, x_end) + x_cylinder(port_flange_OD / 2, x_panel_out, flange_x1)
     pipe = pipe - x_cylinder(bore / 2, x_in, x_end)
     for yc, zc in bolt_hole_centers():
-        pipe = pipe - x_cylinder_at(PORT_BOLT_HOLE_DIA / 2, x_panel_out - sign, flange_x1 + sign, yc, zc)
+        pipe = pipe - x_cylinder_at(port_bolt_hole_dia / 2, x_panel_out - sign, flange_x1 + sign, yc, zc)
     # 마개: 속이 찬 바깥지름 원기둥에서 관이 들어갈 자리(관 외경, 끼움 깊이)를 뺀다.
     cap = x_cylinder(cap_OD / 2, cap_x0, cap_x1) - x_cylinder(tube_OD / 2, cap_x0, x_end)
 

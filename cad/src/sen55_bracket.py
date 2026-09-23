@@ -29,6 +29,7 @@ from cadgen import build123d as bd
 from cadgen import step
 
 from params import (
+    brk_bolt_hole_dia,
     brk_bolt_N,
     brk_wall,
     ceil_cx,
@@ -54,7 +55,6 @@ from params import (
 CLIP_W = sen_W + sen_W_tol_plus  # 클립 안쪽 폭, 뒤 벽 안쪽 면과 앞 팔 안쪽 면 사이 (43.5)
 CLIP_L = sen_L + sen_tol  # 클립 길이, 윗판과 뒤 벽의 u 길이 (52.7)
 CATCH_H = sen_body_T + sen_tol  # 위 턱 아랫면(모듈 윗면)에서 아래 걸림 윗면까지 (13.6)
-BOLT_HOLE_DIA = 4.5  # 윗판 M4 통과 구멍 지름 (11번 명세, 사용자 결정 2026-10-07)
 
 # --- 데이터시트 Figure 7 참고 치수 ---
 FAN_BLOCK_L = 27.24  # 팬 쪽 블록의 u 길이, 커넥터 쪽 끝에서 잰다 (데이터시트 Figure 7 참고 치수)
@@ -84,8 +84,8 @@ W_PLATE1 = sen_gap  # 윗판 윗면 w (20)
 W_PLATE0 = W_PLATE1 - brk_wall  # 윗판 아랫면 w (17.5)
 W_CATCH = -CATCH_H  # 아래 걸림 윗면 w (−13.6)
 W_BOTTOM = W_CATCH - brk_wall  # 벽과 걸림의 아랫면 w (−16.1)
-ARM_U0 = ARM_UC - ARM_W / 2  # 앞 팔 −u 끝 (−7.5)
-ARM_U1 = ARM_UC + ARM_W / 2  # 앞 팔 +u 끝 (−2.5)
+ARM_U0 = ARM_UC - ARM_W / 2  # 앞 팔 −u 끝 (−7.1)
+ARM_U1 = ARM_UC + ARM_W / 2  # 앞 팔 +u 끝 (−2.1)
 BOARD_U0 = BOARD_U1 - ext_W  # 기판 −u 끝 (−3.65)
 BOARD_W0 = BOARD_W1 - ext_D  # 기판 아랫변 w (−2.5)
 EXT_HOLE_W = (BOARD_W0 + BOARD_W1) / 2  # 기판 구멍 중심 w, 긴 변 중심선 (7.5)
@@ -118,7 +118,7 @@ def bracket_local() -> bd.Solid:
     plate = _box(-CLIP_L / 2, CLIP_L / 2, -V_OUT, V_OUT, W_PLATE0, W_PLATE1)
     body = plate + _side(-CLIP_L / 2, CLIP_L / 2, -1) + _side(ARM_U0, ARM_U1, +1)
     for u in (-BOLT_U, BOLT_U):
-        body = body - bd.Solid.make_cylinder(BOLT_HOLE_DIA / 2, W_PLATE1 - W_PLATE0 + 2, plane=bd.Plane(origin=(u, 0, W_PLATE0 - 1), z_dir=(0, 0, 1)))
+        body = body - bd.Solid.make_cylinder(brk_bolt_hole_dia / 2, W_PLATE1 - W_PLATE0 + 2, plane=bd.Plane(origin=(u, 0, W_PLATE0 - 1), z_dir=(0, 0, 1)))
     for u in EXT_HOLE_U:
         body = body - bd.Solid.make_cylinder(ext_hole_dia / 2, brk_wall + 2, plane=bd.Plane(origin=(u, -V_OUT - 1, EXT_HOLE_W), z_dir=(0, 1, 0)))
     solids = body.solids()
@@ -157,7 +157,7 @@ def extender_location(i: int) -> bd.Location:
 def sen55_bracket():
     assert abs(sen_top_z + W_PLATE1 - panel_top_z0) < 1e-9, "윗판 윗면이 천장 패널 안쪽 면에 오지 않는다"
     assert brk_bolt_N == 2 and ext_hole_N == 2 and sen_N == 3 and len(sen_xy) == 3
-    assert FAN_BLOCK_U0 < 0 < BOLT_U < CLIP_L / 2 - BOLT_HOLE_DIA / 2
+    assert FAN_BLOCK_U0 < 0 < BOLT_U < CLIP_L / 2 - brk_bolt_hole_dia / 2
     assert ARM_U1 < FAN_BLOCK_U0, "앞 팔이 팬 블록에 걸린다"
     assert LIP_D < LEDGE_D < V_IN and W_PLATE0 > brk_wall, "턱 · 걸림 치수가 맞지 않는다"
     assert EXT_HOLE_THROUGH and EXT_HOLE_W - ext_hole_dia / 2 > brk_wall, "기판 구멍이 위 턱에 걸린다"
