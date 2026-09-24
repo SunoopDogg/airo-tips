@@ -10,6 +10,7 @@ label: hinge_1(위) … hinge_3(아래)는 각각 날개 둘과 너클 하나(hi
 """
 
 from cadgen import build123d as bd
+from cadgen import srgb
 from cadgen import step
 
 from chamber_panel import bolt_holes
@@ -28,6 +29,7 @@ from params import (
     spacer_head_dia,
     t_spacer,
 )
+from style import hardware
 
 LEAF_T = 2.0  # 작업 가정 — 사용자 확인 필요. 날개 두께
 KNUCKLE_DIA = 7.0  # 작업 가정 — 사용자 확인 필요. 너클 바깥지름(핀은 따로 그리지 않는다)
@@ -55,10 +57,13 @@ def hinge(i: int, zc: float) -> bd.Compound:
     z0, z1 = zc - hinge_L / 2, zc + hinge_L / 2
     knuckle = bd.Solid.make_cylinder(KNUCKLE_DIA / 2, hinge_L, plane=bd.Plane(origin=(AXIS_X, AXIS_Y, z0), z_dir=(0, 0, 1)))
     knuckle.label = f"hinge_{i}_knuckle"
+    knuckle.color = srgb(hardware)
     leaf_door = _box(AXIS_X - hinge_leaf_W, AXIS_X, LEAF_Y0, LEAF_Y1, z0, z1) - knuckle
     leaf_door.label = f"hinge_{i}_leaf_door"
+    leaf_door.color = srgb(hardware)
     leaf_frame = _box(AXIS_X, AXIS_X + hinge_leaf_W, LEAF_Y0, LEAF_Y1, z0, z1) - knuckle
     leaf_frame.label = f"hinge_{i}_leaf_frame"
+    leaf_frame.color = srgb(hardware)
     parts = [leaf_door, leaf_frame, knuckle]
     for p in parts:
         if not p.is_valid or len(p.solids()) != 1:
@@ -76,6 +81,7 @@ def spacer(i: int, zc: float) -> tuple[bd.Solid, list]:
         recess = bd.Solid.make_cylinder(spacer_head_dia / 2, spacer_head_depth, plane=bd.Plane(origin=(hx, panel_front_y0, hz), z_dir=(0, -1, 0)))
         block = block - recess
     block.label = f"hinge_spacer_{i}"
+    block.color = srgb(hardware)
     if not block.is_valid or len(block.solids()) != 1:
         raise ValueError(f"{block.label} 솔리드가 올바르지 않다")
     return block, under

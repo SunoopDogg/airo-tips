@@ -14,6 +14,7 @@ label: caster_FL(x −33, y −33 모서리), caster_FR(x 1413, y −33), caster
 from __future__ import annotations
 
 from cadgen import build123d as bd
+from cadgen import srgb
 from cadgen import step
 
 from chamber_panel import bolt_holes
@@ -31,6 +32,7 @@ from params import (
     spacer_head_dia,
     t_panel,
 )
+from style import hardware, rubber
 
 # 크기는 모두 작업 가정 — 사용자 확인 필요. 흔한 바퀴 지름 100 mm 브레이크 회전 캐스터를 본뜬 대표값이다.
 PLATE_L = 100.0  # 작업 가정 — 사용자 확인 필요. 장착판 한 변(정사각, x = y)
@@ -147,6 +149,7 @@ def plate(name, cx0, sx, cy0, sy):
         body = body - _cyl_z(hx, hy, spacer_head_dia, PLATE_Z1 - spacer_head_depth, PLATE_Z1)
         under.append((hx, hy))
     body.label = f"{name}_plate"
+    body.color = srgb(hardware)
     return body, under
 
 
@@ -178,6 +181,7 @@ def fork(name, cx, cy, s):
     body = body + _cyl_x(ay, AXLE_Z, AXLE_HEAD_DIA, cx - AXLE_OUT, cx - LEG_OUT)
     body = body + _cyl_x(ay, AXLE_Z, AXLE_HEAD_DIA, cx + LEG_OUT, cx + AXLE_OUT)
     body.label = f"{name}_fork"
+    body.color = srgb(hardware)
     return body
 
 
@@ -188,6 +192,7 @@ def wheel(name, cx, cy, s):
     body = body + _cyl_x(ay, AXLE_Z, HUB_DIA, cx - LEG_IN, cx + LEG_IN)
     body = body - _cyl_x(ay, AXLE_Z, AXLE_DIA, cx - LEG_IN, cx + LEG_IN)
     body.label = f"{name}_wheel"
+    body.color = srgb(rubber)
     return body
 
 
@@ -196,6 +201,7 @@ def brake(name, cx, cy, s):
     y0, y1 = sorted((cy + s * PEDAL_T0, cy + s * CROWN_T0))
     body = _box(cx - PEDAL_W / 2, cx + PEDAL_W / 2, y0, y1, PEDAL_Z0, PEDAL_Z1)
     body.label = f"{name}_brake"
+    body.color = srgb(hardware)
     return body
 
 
@@ -207,6 +213,7 @@ def one_caster(name, cx0, sx, cy0, sy):
     base, under = plate(name, cx0, sx, cy0, sy)
     swivel = _cyl_z(cx, cy, SWIVEL_DIA, SWIVEL_Z0, SWIVEL_Z1)
     swivel.label = f"{name}_swivel"
+    swivel.color = srgb(hardware)
     parts = [base, swivel, fork(name, cx, cy, s), wheel(name, cx, cy, s), brake(name, cx, cy, s)]
     for part in parts:
         if not part.is_valid or len(part.solids()) != 1:

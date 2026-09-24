@@ -12,6 +12,7 @@ label: gland_1, gland_2, gland_3(x가 작은 쪽부터)은 각각 돔 너트·�
 import math
 
 from cadgen import build123d as bd
+from cadgen import srgb
 from cadgen import step
 
 from params import (
@@ -33,6 +34,7 @@ from params import (
     pcb_hole_y,
     pcb_z0,
 )
+from style import nylon
 
 THREAD_OD = gland_hole_dia  # 나사부 지름 — M20의 호칭 지름 20, 나사산 없는 원통으로 그린다. 패널·전장함 바닥 구멍 gland_hole_dia(Ø20)와 같다 (chamber.md 글랜드 행 "M20 글랜드", 명세 "단순 원통 Ø20")
 
@@ -87,6 +89,7 @@ def _one(shape, label: str) -> bd.Solid:
         raise ValueError(f"{label} 솔리드가 올바르지 않다 (solids {len(solids)})")
     s = solids[0]
     s.label = label
+    s.color = srgb(nylon)
     return s
 
 

@@ -26,6 +26,7 @@ from __future__ import annotations
 import math
 
 from cadgen import build123d as bd
+from cadgen import srgb
 from cadgen import step
 
 from params import (
@@ -50,6 +51,7 @@ from params import (
     sen_W_tol_plus,
     sen_xy,
 )
+from style import petg
 
 # --- 클립 안쪽 치수: 데이터시트 공차의 최대값 (11번 명세, 사용자 결정 2026-10-07) ---
 CLIP_W = sen_W + sen_W_tol_plus  # 클립 안쪽 폭, 뒤 벽 안쪽 면과 앞 팔 안쪽 면 사이 (43.5)
@@ -166,6 +168,7 @@ def sen55_bracket():
     for i in range(1, sen_N + 1):
         b = local.moved(bracket_location(i))
         b.label = f"bracket_{i}"
+        b.color = srgb(petg)
         brackets.append(b)
     return bd.Compound(children=brackets)
 

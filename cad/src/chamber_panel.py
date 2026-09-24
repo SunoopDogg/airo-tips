@@ -16,6 +16,7 @@ import os
 
 from cadgen import build123d as bd
 from cadgen import read_step
+from cadgen import srgb
 from cadgen import step
 
 from params import (
@@ -62,6 +63,7 @@ from params import (
     stiff_cx,
     t_panel,
 )
+from style import composite_panel
 
 IMPORTED = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "step", "imported")
 GLAND_CUTTER_ID = "cable_gland_panel_hole_cutter_m20"  # 글랜드 — 패널 구멍 지름(안지름 Ø20)의 출처인 step.parts 부품 (chamber.md 글랜드 행)
@@ -154,6 +156,7 @@ def panel(label: str) -> bd.Solid:
     slab = bd.Solid.extrude(faces[0], bd.Vector(0, 0, t_panel))
     placed = slab.moved(bd.Location(bd.Plane(origin=origin, x_dir=du, z_dir=dn)))
     placed.label = label
+    placed.color = srgb(composite_panel)
     return placed
 
 

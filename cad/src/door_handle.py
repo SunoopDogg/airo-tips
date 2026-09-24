@@ -12,6 +12,7 @@ label: door_handle — 기둥 2개와 봉을 합친 솔리드 하나.
 from __future__ import annotations
 
 from cadgen import build123d as bd
+from cadgen import srgb
 from cadgen import step
 
 from params import (
@@ -24,6 +25,7 @@ from params import (
     handle_spacing,
     handle_x,
 )
+from style import hardware
 
 # 크기는 모두 작업 가정 — 사용자 확인 필요. 흔한 장착 간격 128 mm 스테인리스 봉 손잡이를 본뜬 대표값이다.
 POST_DIA = 10.0  # 작업 가정 — 사용자 확인 필요. 기둥 지름. 봉 지름보다 작아야 기둥 윗면이 봉 속에 묻힌다
@@ -67,6 +69,7 @@ def door_handle():
         raise ValueError(f"door_handle 솔리드가 올바르지 않다 (solids {len(solids)})")
     handle = solids[0]
     handle.label = "door_handle"
+    handle.color = srgb(hardware)
     # 솔리드 하나를 그대로 반환하면 STEP에 label이 남지 않으므로 compound로 감싼다.
     return bd.Compound(children=[handle])
 

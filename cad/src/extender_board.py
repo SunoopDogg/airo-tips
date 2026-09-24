@@ -10,6 +10,7 @@ label: extender_1, extender_2, extender_3 — 각각 솔리드 하나이고 번�
 from __future__ import annotations
 
 from cadgen import build123d as bd
+from cadgen import srgb
 from cadgen import step
 
 from params import (
@@ -22,6 +23,7 @@ from params import (
     sen_N,
 )
 from sen55_bracket import extender_location
+from style import pcb
 
 
 def board_local() -> bd.Solid:
@@ -44,6 +46,7 @@ def extender_board():
     for i in range(1, sen_N + 1):
         b = local.moved(extender_location(i))
         b.label = f"extender_{i}"
+        b.color = srgb(pcb)
         boards.append(b)
     return bd.Compound(children=boards)
 

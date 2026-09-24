@@ -16,6 +16,7 @@ from __future__ import annotations
 import math
 
 from cadgen import build123d as bd
+from cadgen import srgb
 from cadgen import step
 
 from params import (
@@ -58,6 +59,7 @@ from params import (
     usbc_z0,
     usbc_z1,
 )
+from style import petg
 
 STANDOFF_HOLE_DIA = 2.5  # 작업 가정 — 사용자 확인 필요. 스탠드오프의 M3 나사 구멍 지름. M3 × 0.5의 탭 드릴 지름 2.5로, M3 나사를 PETG에 바로 박아 나사산을 내는 구멍이다. 열압입 인서트 구멍(약 Ø4)은 Ø6 스탠드오프에 벽 1 mm만 남겨 쓰지 않았다
 STANDOFF_HOLE_DEPTH = elec_standoff_H  # 작업 가정 — 사용자 확인 필요. 스탠드오프 나사 구멍 깊이. 스탠드오프 윗면(z 705)에서 바닥 윗면(z 695)까지로, 바닥을 뚫으면 상자 안이 천장 패널 윗면으로 열리므로 바닥은 남긴다
@@ -95,6 +97,7 @@ def _one(shape, label: str) -> bd.Solid:
         raise ValueError(f"{label} 솔리드가 올바르지 않다 (solids {len(solids)})")
     s = solids[0]
     s.label = label
+    s.color = srgb(petg)
     return s
 
 

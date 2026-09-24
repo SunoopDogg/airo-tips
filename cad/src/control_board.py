@@ -17,8 +17,10 @@ import os
 
 from cadgen import build123d as bd
 from cadgen import read_step
+from cadgen import srgb
 from cadgen import step
 
+import style
 from params import (
     pcb_cx,
     pcb_D,
@@ -64,6 +66,7 @@ def board() -> bd.Solid:
         raise ValueError(f"기판 솔리드가 올바르지 않다 (solids {len(solids)})")
     pcb = solids[0]
     pcb.label = "pcb"
+    pcb.color = srgb(style.pcb)
     return pcb
 
 
@@ -88,6 +91,7 @@ def esp32_module() -> bd.Compound:
 def usb_c() -> bd.Solid:
     block = _box(usbc_x0, usbc_x1, usbc_y0, usbc_y1, usbc_z0, usbc_z1)
     block.label = "usb_c"
+    block.color = srgb(style.usb_c)
     return block
 
 

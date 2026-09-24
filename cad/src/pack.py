@@ -4,9 +4,11 @@
 """
 
 from cadgen import build123d as bd
+from cadgen import srgb
 from cadgen import step
 
 from params import pack_D, pack_H, pack_W, pack_x0, pack_y0, pack_z0
+from style import dummy_pack
 
 
 @step(out="../step/pack.step")
@@ -14,6 +16,7 @@ def pack():
     body = bd.Box(pack_W, pack_D, pack_H, align=(bd.Align.MIN, bd.Align.MIN, bd.Align.MIN))
     body = body.moved(bd.Location((pack_x0, pack_y0, pack_z0)))
     body.label = "pack"
+    body.color = srgb(dummy_pack)
     # 솔리드 하나를 그대로 반환하면 STEP에 label이 남지 않으므로 compound로 감싼다.
     return bd.Compound(children=[body])
 

@@ -16,6 +16,7 @@ from __future__ import annotations
 import math
 
 from cadgen import build123d as bd
+from cadgen import srgb
 from cadgen import step
 
 from params import (
@@ -36,6 +37,7 @@ from params import (
     port_y,
     port_z,
 )
+from style import aluminium, rubber
 
 PORT_BOLT_ANGLE0 = 45.0  # 작업 가정 — 사용자 확인 필요. 첫 플랜지 구멍의 각도(°), +y에서 +z 쪽으로 잰다. 구멍을 y·z 축에서 45° 돌린 자리에 둔다
 
@@ -84,12 +86,13 @@ def port_parts(bore: float, tube_OD: float, x_in: float, x_end: float, x_panel_o
     cap = x_cylinder(cap_OD / 2, cap_x0, cap_x1) - x_cylinder(tube_OD / 2, cap_x0, x_end)
 
     parts = []
-    for name, body in ((f"{prefix}_pipe", pipe), (f"{prefix}_cap", cap)):
+    for name, body, colour in ((f"{prefix}_pipe", pipe, aluminium), (f"{prefix}_cap", cap, rubber)):
         solids = body.solids()
         if not body.is_valid or len(solids) != 1 or len(solids[0].shells()) != 1:
             raise ValueError(f"{name} 솔리드가 올바르지 않다 (solids {len(solids)})")
         part = solids[0]
         part.label = name
+        part.color = srgb(colour)
         parts.append(part)
     return bd.Compound(children=parts)
 

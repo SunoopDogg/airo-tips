@@ -12,6 +12,7 @@ label: clamp_1(위), clamp_2(아래)는 각각 받침판·몸체·암·레버·�
 """
 
 from cadgen import build123d as bd
+from cadgen import srgb
 from cadgen import step
 
 from chamber_panel import bolt_holes
@@ -29,6 +30,7 @@ from params import (
     spacer_head_depth,
     spacer_head_dia,
 )
+from style import hardware, rubber
 
 # 크기는 모두 작업 가정 — 사용자 확인 필요. 흔한 소형 수직형 누름 클램프를 본뜬 대표값이다.
 DOOR_CLR = 2.0  # 작업 가정 — 사용자 확인 필요. 받침판·몸체 오른쪽 끝과 도어 판 왼쪽 끝(x 20) 사이 틈
@@ -107,6 +109,7 @@ def base_plate(i: int, zc: float) -> tuple[bd.Solid, list]:
         plate = plate - recess
         under.append((hx, hz))
     plate.label = f"clamp_{i}_base"
+    plate.color = srgb(hardware)
     return plate, under
 
 
@@ -114,14 +117,19 @@ def clamp(i: int, zc: float) -> tuple[bd.Compound, list]:
     base, under = base_plate(i, zc)
     body = _box(BODY_X0, BASE_X1, BODY_Y0, BODY_Y1, zc - BODY_W / 2, zc + BODY_W / 2)
     body.label = f"clamp_{i}_body"
+    body.color = srgb(hardware)
     spindle = _cyl_y(PAD_X, zc, SPINDLE_DIA, SPINDLE_Y0, SPINDLE_Y1)
     spindle.label = f"clamp_{i}_spindle"
+    spindle.color = srgb(hardware)
     arm = _box(BASE_X1, PAD_X + ARM_TIP, ARM_Y0, ARM_Y1, zc - ARM_W / 2, zc + ARM_W / 2) - spindle
     arm.label = f"clamp_{i}_arm"
+    arm.color = srgb(hardware)
     lever = _box(BODY_X0, BODY_X0 + LEVER_W, LEVER_Y0, LEVER_Y1, zc - LEVER_W / 2, zc + LEVER_W / 2) + _cyl_y(LEVER_CX, zc, GRIP_DIA, GRIP_Y0, LEVER_Y0)
     lever.label = f"clamp_{i}_lever"
+    lever.color = srgb(hardware)
     pad = _cyl_y(PAD_X, zc, PAD_DIA, PAD_Y0, PAD_Y1)
     pad.label = f"clamp_{i}_pad"
+    pad.color = srgb(rubber)
     parts = [base, body, arm, lever, spindle, pad]
     for p in parts:
         if not p.is_valid or len(p.solids()) != 1:

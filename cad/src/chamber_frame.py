@@ -11,6 +11,7 @@ import os
 
 from cadgen import build123d as bd
 from cadgen import read_step
+from cadgen import srgb
 from cadgen import step
 
 from params import (
@@ -34,6 +35,7 @@ from params import (
     stiff_y0,
     stiff_z0,
 )
+from style import aluminium
 
 IMPORTED = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "step", "imported")
 PROFILE_STEP = os.path.join(IMPORTED, f"{profile_id}.step")
@@ -68,6 +70,7 @@ def member(section: bd.Face, axis: str, x0: float, y0: float, z0: float, length:
     else:
         raise ValueError(axis)
     placed.label = label
+    placed.color = srgb(aluminium)
     return placed
 
 
@@ -95,6 +98,7 @@ def bracket(proto: bd.Solid, corner: tuple, a: tuple, b: tuple, width_axis: int,
     plane = bd.Plane(origin=tuple(origin), x_dir=a, z_dir=w)  # 로컬 x → a, y → b, z → w
     placed = proto.moved(bd.Location(plane))
     placed.label = label
+    placed.color = srgb(aluminium)
     return placed
 
 

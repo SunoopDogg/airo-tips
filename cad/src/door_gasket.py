@@ -6,6 +6,7 @@
 """
 
 from cadgen import build123d as bd
+from cadgen import srgb
 from cadgen import step
 
 from params import (
@@ -22,6 +23,7 @@ from params import (
     gasket_y0,
     gasket_y1,
 )
+from style import epdm
 
 
 def _box(x0, x1, y0, y1, z0, z1):
@@ -41,6 +43,7 @@ def door_gasket():
     inner = _box(gasket_in_x0, gasket_in_x1, gasket_y0, gasket_y1, gasket_in_z0, gasket_in_z1)
     body = outer - inner
     body.label = "door_gasket"
+    body.color = srgb(epdm)
     # 솔리드 하나를 그대로 반환하면 STEP에 label이 남지 않으므로 compound로 감싼다.
     return bd.Compound(children=[body])
 
