@@ -1,1 +1,4 @@
 cad/cadgen text eol=lf
+*.step -text
+*.STEP -text
+*.dxf -text
