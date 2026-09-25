@@ -67,6 +67,7 @@ PCA9548A, 외부측 P82B715, 풀업 저항, 3.3 V 공급 소자, 케이블 커�
 | 부품 | 도면 스크립트 | DXF | 근거 |
 |---|---|---|---|
 | 외함 패널 | `src/chamber_panel_dxf.py` | `dxf/panel_front.dxf` · `panel_back.dxf` · `panel_left.dxf` · `panel_right.dxf` · `panel_top.dxf` · `panel_bottom.dxf` | `src/chamber_panel.py`의 패널 6장마다 바깥면 하나. 외곽, 골조 볼트 구멍 Ø6.5, 앞면 도어 개구, 옆면 포트 구멍 Ø56, 천장 글랜드 구멍 Ø20이 들어간다 |
+| 도어 | `src/door_dxf.py` | `dxf/door.dxf` | `src/door.py`의 아크릴 판 앞면. 1290 × 520 외곽뿐이고 구멍이 없다 |
 
 ## 남은 것
 
