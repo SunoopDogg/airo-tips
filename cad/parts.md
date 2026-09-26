@@ -72,6 +72,14 @@ PCA9548A, 외부측 P82B715, 풀업 저항, 3.3 V 공급 소자, 케이블 커�
 | 전장 기판 | `src/control_board_dxf.py` | `dxf/control_board.dxf` | `src/control_board.py`의 `pcb` 개체 윗면(소자면). 80 × 60 외곽과 M3 구멍 Ø3.2 4개. KiCad Edge.Cuts로 가져갈 외곽이다 |
 | P82B715 센서측 기판 | `src/extender_board_dxf.py` | `dxf/extender_board.dxf` | `src/extender_board.py`의 `extender_1`에서 브래킷에서 먼 큰 면. 30 × 20 외곽과 M3 구멍 Ø3.2 2개. 3장이 같은 형상이라 도면은 하나다 |
 
+## 치수 도면
+
+가공 도면과 짝을 이루어 사람이 읽는 치수 도면 PDF를 `pdf/`에 낸다. 주 뷰는 같은 판의 DXF와 같은 면·방향·원점이고, 위치 치수는 그 원점(판의 왼쪽 아래)에서 잰다. 일반 공차 ISO 2768-m, 영문 표기, 도면 번호·작성자는 비우고, 도어와 패널에는 철물 장착 구멍이 없다는 노트를 넣는다 (사용자 결정 2026-10-07). 규칙은 `cad/CLAUDE.md`의 "치수 도면 (PDF)" 절이 정한다.
+
+| 부품 | 도면 스크립트 | PDF | 근거 |
+|---|---|---|---|
+| 외함 패널 | `src/chamber_panel_drawing.py` | `pdf/chamber_panel.pdf` (6쪽) | 패널마다 바깥면 뷰 한 쪽. 앞·뒤·옆은 A3, 천장·바닥은 치수가 A3 틀에 닿아 A2이고 모두 1:5다. 바닥은 DXF와 방향을 맞추려 형상을 180° 돌려 그린다 |
+
 ## 남은 것
 
 - 밀폐 등급(IP)은 정해지지 않았다. 형상은 밀폐재 단면으로 이미 정해졌다.
