@@ -70,6 +70,7 @@ PCA9548A, 외부측 P82B715, 풀업 저항, 3.3 V 공급 소자, 케이블 커�
 | 도어 | `src/door_dxf.py` | `dxf/door.dxf` | `src/door.py`의 아크릴 판 앞면. 1290 × 520 외곽뿐이고 구멍이 없다 |
 | 도어 밀폐재 | `src/door_gasket_dxf.py` | `dxf/door_gasket.dxf` | `src/door_gasket.py`의 사각 링 앞면. 바깥 1275 × 505, 안쪽 1245 × 475, 폭 15. 두께 10은 재료 두께라 도면에 없다 |
 | 전장 기판 | `src/control_board_dxf.py` | `dxf/control_board.dxf` | `src/control_board.py`의 `pcb` 개체 윗면(소자면). 80 × 60 외곽과 M3 구멍 Ø3.2 4개. KiCad Edge.Cuts로 가져갈 외곽이다 |
+| P82B715 센서측 기판 | `src/extender_board_dxf.py` | `dxf/extender_board.dxf` | `src/extender_board.py`의 `extender_1`에서 브래킷에서 먼 큰 면. 30 × 20 외곽과 M3 구멍 Ø3.2 2개. 3장이 같은 형상이라 도면은 하나다 |
 
 ## 남은 것
 
