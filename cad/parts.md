@@ -82,6 +82,7 @@ PCA9548A, 외부측 P82B715, 풀업 저항, 3.3 V 공급 소자, 케이블 커�
 | 도어 | `src/door_drawing.py` | `pdf/door.pdf` | 앞면 뷰 한 쪽, A3 1:5. 외곽 1290 × 520뿐이다 |
 | 도어 밀폐재 | `src/door_gasket_drawing.py` | `pdf/door_gasket.pdf` | 도어 쪽 앞면 뷰 한 쪽, A3 1:5. 바깥 1275 × 505, 안쪽 1245 × 475, 들어온 거리 15 |
 | 전장 기판 | `src/control_board_drawing.py` | `pdf/control_board.pdf` | `pcb` 개체의 소자면 뷰 한 쪽, A4 1:1. 80 × 60 외곽과 M3 구멍 Ø3.2 4개의 위치 |
+| P82B715 센서측 기판 | `src/extender_board_drawing.py` | `pdf/extender_board.pdf` | `extender_1`의 브래킷에서 먼 면 뷰 한 쪽, A4 2:1. 30 × 20 외곽과 M3 구멍 Ø3.2 2개의 위치, 수량 3 노트 |
 
 ## 남은 것
 
