@@ -81,6 +81,7 @@ PCA9548A, 외부측 P82B715, 풀업 저항, 3.3 V 공급 소자, 케이블 커�
 | 외함 패널 | `src/chamber_panel_drawing.py` | `pdf/chamber_panel.pdf` (6쪽) | 패널마다 바깥면 뷰 한 쪽. 앞·뒤·옆은 A3, 천장·바닥은 치수가 A3 틀에 닿아 A2이고 모두 1:5다. 바닥은 DXF와 방향을 맞추려 형상을 180° 돌려 그린다 |
 | 도어 | `src/door_drawing.py` | `pdf/door.pdf` | 앞면 뷰 한 쪽, A3 1:5. 외곽 1290 × 520뿐이다 |
 | 도어 밀폐재 | `src/door_gasket_drawing.py` | `pdf/door_gasket.pdf` | 도어 쪽 앞면 뷰 한 쪽, A3 1:5. 바깥 1275 × 505, 안쪽 1245 × 475, 들어온 거리 15 |
+| 전장 기판 | `src/control_board_drawing.py` | `pdf/control_board.pdf` | `pcb` 개체의 소자면 뷰 한 쪽, A4 1:1. 80 × 60 외곽과 M3 구멍 Ø3.2 4개의 위치 |
 
 ## 남은 것
 
