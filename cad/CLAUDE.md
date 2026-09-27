@@ -21,7 +21,7 @@ cad/
 - 생성된 STEP도 커밋한다. SolidWorks나 cadgen이 없는 사람도 받아 볼 수 있어야 한다. 소스를 고치면 다시 빌드한 STEP을 같은 커밋에 담는다.
 - 여러 부품이 공유하는 치수는 `src/params.py` 한 곳에 상수로 둔다. 부품 소스마다 따로 박아 넣지 않는다. 값마다의 상태와 근거는 `chamber.md`가 담고, 근거 없는 값은 상수로 만들지 않는다.
 - 부품 색은 `src/style.py` 한 곳에 재질별 hex 상수로 두고, 상수마다 근거를 주석으로 단다. 각 부품 소스가 leaf 개체마다 `srgb()`로 입힌다. 색은 STEP에 실려 SolidWorks에서 보인다. `materials=` 사이드카는 SolidWorks가 읽지 않으므로 쓰지 않는다.
-- 조립이 필요해지면 하위 부품 모델을 호출하는 `src/assembly.py`를 둔다. 루트 조립품을 실행하면 전체가 빌드된다.
+- 조립이 필요해지면 하위 부품 모델을 호출하는 `src/assembly.py`를 둔다. 루트 조립품을 실행하면 전체가 빌드된다. 도어를 연 조립품 `src/assembly_door_open.py`는 `assembly.py`를 불러 쓰므로 조립품을 다시 빌드할 때 함께 실행한다.
 
 ## 좌표계와 단위
 

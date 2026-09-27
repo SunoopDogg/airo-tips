@@ -60,6 +60,8 @@ PCA9548A, 외부측 P82B715, 풀업 저항, 3.3 V 공급 소자, 케이블 커�
 
 `src/assembly.py`가 위의 모델을 모두 불러 조립 위치에 놓고, SEN55 벤더 STEP 3대를 브래킷의 자세 함수로 함께 놓는다. ESP32 벤더 STEP은 전장 기판 모델이 이미 갖고 있다.
 
+`src/assembly_door_open.py`는 같은 조립품을 도어를 90° 연 자세로 `step/assembly_door_open.step`에 쓴다. 토글 클램프는 풀린 자세이고, 그 회전축과 각도는 `src/assembly.py`의 작업 가정이다.
+
 ## 남은 것
 
 - 밀폐 등급(IP)은 정해지지 않았다. 형상은 밀폐재 단면으로 이미 정해졌다.
