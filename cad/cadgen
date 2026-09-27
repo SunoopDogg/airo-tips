@@ -40,6 +40,7 @@ MSYS_NO_PATHCONV=1 exec docker run --rm -i "${tty[@]}" \
     -v cadgen-cache:/root/.cache \
     -e CADGEN_DAEMON=0 \
     -e UV_PYTHON_INSTALL_DIR=/root/.cache/uv-python \
+    -e MPLCONFIGDIR=/root/.cache/mpl \
     "$IMAGE" \
     /root/.local/bin/uvx --no-config --managed-python --python 3.13 \
         --from "cadgen==$VERSION" "$cmd" "$@"

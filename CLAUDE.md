@@ -20,19 +20,19 @@ ESS(리튬 배터리 에너지저장장치) **열폭주 조기감지** 개발 �
 raw/                    원문 (불변)
   battery-spec/ sensor-spec/ ess-reference/ papers/
   records/ inquiries/ contracts/ business-plans/ contacts/
-  thermal-runaway-video/
+  thermal-runaway-video/ market-survey/
 wiki/
   topics/               주제 1건당 1페이지 — 사람·조직·제품·기기·현상·지표·알고리즘·시험조건
   sources/              원문 1건당 1페이지
 index.md                전 페이지 카탈로그. 질의는 여기서 시작
 log.md                  시간순 작업 이력 (append-only)
 cad/                    모의장치 부품 형상 (산출물)
-  src/ step/
+  src/ step/ dxf/ pdf/
 ```
 
 ## cad — 도면 계층
 
-`cad/`는 지표 3 모의장치의 부품 형상을 STEP 파일로 담는다. 세부 규약은 `cad/CLAUDE.md`가 담고, 여기서 정하는 것은 위키와의 경계뿐이다.
+`cad/`는 지표 3 모의장치의 부품 형상을 STEP 파일로, 판재 부품의 가공 도면을 DXF 파일로, 그 치수 도면을 PDF 파일로 담는다. 세부 규약은 `cad/CLAUDE.md`가 담고, 여기서 정하는 것은 위키와의 경계뿐이다.
 
 - **근거는 한 방향으로만 흐른다.** `raw/`와 사용자 입력이 위키로 가고, 위키가 도면으로 간다. 도면이 정한 수치를 위키 페이지에 옮겨 적지 않는다. `cad/`는 원문이 아니므로 위키의 근거가 될 수 없다.
 - **도면의 모든 확정 치수는 위키에 서술된 사실이거나 사용자가 직접 결정한 값이어야 한다.** 근거 없는 값을 채우지 않는다. 정해지지 않은 것은 `cad/chamber.md`에 정해지지 않은 채로 남긴다.
