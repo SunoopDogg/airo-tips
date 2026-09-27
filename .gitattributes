@@ -3,3 +3,4 @@ cad/cadgen text eol=lf
 *.STEP -text
 *.dxf -text
 *.pdf -text
+*.html -text

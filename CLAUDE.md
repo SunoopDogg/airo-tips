@@ -20,7 +20,7 @@ ESS(리튬 배터리 에너지저장장치) **열폭주 조기감지** 개발 �
 raw/                    원문 (불변)
   battery-spec/ sensor-spec/ ess-reference/ papers/
   records/ inquiries/ contracts/ business-plans/ contacts/
-  thermal-runaway-video/
+  thermal-runaway-video/ market-survey/
 wiki/
   topics/               주제 1건당 1페이지 — 사람·조직·제품·기기·현상·지표·알고리즘·시험조건
   sources/              원문 1건당 1페이지
